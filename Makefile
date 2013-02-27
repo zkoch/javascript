@@ -1,5 +1,4 @@
-#SUBDIRS := $(wildcard */.)
-SUBDIRS = web socket.io
+SUBDIRS = web socket.io nodejs
 
 .PHONY: all
 all:

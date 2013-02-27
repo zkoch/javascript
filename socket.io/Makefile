@@ -1,8 +1,6 @@
-REPOS_DIR=..
-TOOLS_DIR=$(REPOS_DIR)/tools
-VERSION=3.4
-GOOGLE_MINIFY=$(TOOLS_DIR)/compiler.jar
-CORE_DIR=$(REPOS_DIR)/core
+
+include ../Makefile.inc
+
 CRYPTO_DIR=$(CORE_DIR)/crypto
 WEB_DIR=$(REPOS_DIR)/web
 

@@ -1,10 +1,6 @@
-REPOS_DIR=..
-TOOLS_DIR=$(REPOS_DIR)/tools
-VERSION=3.4
+include ../Makefile.inc
 TOPOUT=pubnub-$(VERSION).js
 MINOUT=pubnub-$(VERSION).min.js
-GOOGLE_MINIFY=$(TOOLS_DIR)/compiler.jar
-CORE_DIR=$(REPOS_DIR)/core
 JSON_JS=$(CORE_DIR)/json.js
 CORE_JS=$(CORE_DIR)/pubnub.js
 WEBSOCKET_JS=$(CORE_DIR)/websocket.js
