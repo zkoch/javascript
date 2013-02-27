@@ -125,6 +125,7 @@ subscribe_test = function (test) {
             test.ok(message);
             test.ok(message.test === "test");
             test.done();
+            pubnub.unsubscribe({channel:test_channel});
         }
     });
 };
