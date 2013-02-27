@@ -23,3 +23,7 @@ $(PUBNUB_JS): $(PUBNUB_COMMON_JS) $(PUBNUB_NODE_JS)
 .PHONY	: clean
 clean:
 	rm -f $(OUTPUT_FILES) 
+
+.PHONY	: test
+test:
+	nodeunit $(VERSION)/tests/unit-test.js

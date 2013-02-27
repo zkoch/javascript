@@ -6,8 +6,14 @@ all:
     	$(MAKE) -C $$dir;     \
 	done
 
-.PHONEY: clean
+.PHONY: clean
 clean:
 	for dir in $(SUBDIRS); do \
 		$(MAKE) clean -C $$dir; \
+	done 
+
+.PHONY: test
+test:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) test -C $$dir; \
 	done 
