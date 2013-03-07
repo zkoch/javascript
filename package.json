@@ -1,5 +1,5 @@
 {
-  "name": "javascript",
+  "name": "pubnub-javascript",
   "version": "0.0.0",
   "devDependencies": {
     "mocha": "~1.7.4",
