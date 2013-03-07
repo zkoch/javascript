@@ -80,7 +80,7 @@ function xdr( setup ) {
     if (setup.data) {
         var params = [];
         url += "?";
-        for (key in setup.data) {
+        for (var key in setup.data) {
              params.push(key+"="+setup.data[key]);
         }
         url += params.join(PARAMSBIT);
@@ -99,9 +99,12 @@ function xdr( setup ) {
             } );
             response.on( 'end', function () {
                 try {
-                    if (body) return success(JSON.parse(body));
-                    else      fail();
+                    var jsonb = JSON.parse(body);
                 } catch(e) { fail(); }
+                if (body && jsonb)
+                   return success(jsonb);
+                else
+                   fail();
             } );
         }).on( 'error', fail );
     } catch(e) { fail(); }

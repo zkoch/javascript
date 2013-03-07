@@ -26,4 +26,4 @@ clean:
 
 .PHONY	: test
 test:
-	nodeunit $(VERSION)/tests/unit-test.js
+	mocha -R spec $(VERSION)/tests/test.js
