@@ -12,7 +12,7 @@
     ],
     "harness" : "mocha",
     "scripts" : "web/pubnub-3.4.2.js",
-    "files": "web/tests/test/test.js"
+    "files": "web/tests/test.js"
   },
   "license": "MIT"
 }
