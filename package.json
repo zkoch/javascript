@@ -11,8 +11,8 @@
         "firefox/15", "chrome/22", "opera/12", "safari/5.1"
     ],
     "harness" : "mocha",
-    "scripts" : "pubnub-3.4.2.js",
-    "files": "test/test.js"
+    "scripts" : "web/pubnub-3.4.2.js",
+    "files": "web/tests/test.js"
   },
   "license": "MIT"
 }
