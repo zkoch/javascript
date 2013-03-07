@@ -16,7 +16,7 @@
 	var channel_enc = 'javascript-encrypted-test-channel';
 
 	var message_string = 'Hi from Javascript';
-	var message_jsono = {'message': 'Hi from Javascript'};
+	var message_jsono = {'message': 'Hi Hi from Javascript'};
 	var message_jsona = ['message' , 'Hi Hi from javascript'];
 
 	describe('Pubnub', function() {
