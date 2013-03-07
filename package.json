@@ -1,0 +1,18 @@
+{
+  "name": "pubnub-javascript",
+  "version": "0.0.0",
+  "devDependencies": {
+    "mocha": "~1.7.4",
+    "should": "~1.2.1"
+  },
+  "testling": {
+    "browsers": [
+        "ie6", "ie7", "ie8", "ie9",
+        "firefox/15", "chrome/22", "opera/12", "safari/5.1"
+    ],
+    "harness" : "mocha",
+    "scripts" : "web/pubnub-3.4.2.js",
+    "files": "web/tests/test/test.js"
+  },
+  "license": "MIT"
+}
