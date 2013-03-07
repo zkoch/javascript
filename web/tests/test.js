@@ -1,4 +1,4 @@
-	var should = require('should');
+	var assert = require('assert');
 
 	var pubnub = PUBNUB.init({
 		publish_key 	: 'demo',
@@ -25,7 +25,7 @@
 			it('should publish strings without error', function(done){
 				pubnub.publish({channel: channel , message : message_string,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
@@ -33,7 +33,7 @@
 			it('should publish json objects without error', function(done){
 				pubnub.publish({channel: channel , message : message_jsono,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
@@ -41,7 +41,7 @@
 			it('should publish json arrays without error', function(done){
 				pubnub.publish({channel: channel , message : message_jsona,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
@@ -49,7 +49,7 @@
 			it('should publish strings with encryption enabled without error', function(done){
 				pubnub_enc.publish({channel: channel_enc , message : message_string,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
@@ -57,7 +57,7 @@
 			it('should publish json objects with encryption enabled without error', function(done){
 				pubnub_enc.publish({channel: channel_enc , message : message_jsono,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
@@ -65,39 +65,10 @@
 			it('should publish json arrays with encryption enabled without error', function(done){
 				pubnub_enc.publish({channel: channel_enc , message : message_jsona,
 					callback : function(response) {
-						response[0].should.eql(1);
+						assert.equal(response[0],1);
 						done();
 					}
 				})
 			})
 		})
-	describe('#history', function(){
-        var history_channel = channel + '-' + Date.now();
-		this.timeout(60000);
-		before(function(done){
-			pubnub.publish({channel: history_channel, 
-				message : message_string, 
-				callback : function(response){
-					response[0].should.eql(1);				}
-				});
-			pubnub.publish({channel: history_channel, 
-				message : message_string, 
-				callback : function(response){
-					response[0].should.eql(1);
-                    done();
-				}
-			});
-
-		})
-		it('should return 2 messages when 2 messages were published on channel @slow', function(done) {
-
-			pubnub.history({channel : history_channel,
-				callback : function(response) {
-					response[0].length.should.eql(2);
-					done();
-				}
-			})
-		})
-	})
-
 })
