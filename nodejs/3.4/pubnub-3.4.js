@@ -67,7 +67,7 @@ function log(message) { console['log'](message) }
 function xdr( setup ) {
     //setup.url.unshift('');
     var url     = setup.url.join(URLBIT)
-    ,   success = setup.success
+    ,   success = setup.success || function(){}
     ,   origin  = setup.origin || 'pubsub.pubnub.com'
     ,   ssl     = setup.ssl
     ,   failed  = 0
@@ -126,4 +126,5 @@ exports.init = function(setup) {
     PN.ready();
     return PN;
 }
+PUBNUB = exports.init({});
 exports.unique = unique

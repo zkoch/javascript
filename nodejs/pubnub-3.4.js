@@ -170,6 +170,7 @@ function encode(path) {
 */
 function generate_channel_list(channels) {
     var list = [];
+    //console.log(channels);
     each( channels, function( channel, status ) {
         if (status.subscribed) list.push(channel);
     } );
@@ -381,7 +382,12 @@ function PN_API(setup) {
             // Iterate over Channels
             each( channel.split(','), function(channel) {
                 if (READY) LEAVE( channel, 0 );
+                console.log(CHANNELS);
                 CHANNELS[channel] = 0;
+                //delete CHANNELS[channel];
+                console.log('DELETED ' + channel);
+                console.log(CHANNELS);
+                //CHANNELS[channel] = 0;
             } );
 
             // ReOpen Connection if Any Channels Left
@@ -466,12 +472,14 @@ function PN_API(setup) {
             function _connect() {
                 var jsonp    = jsonp_cb()
                 ,   channels = generate_channel_list(CHANNELS).join(',');
+                    //console.log((new Date).toISOString() + ' CHANNEL LIST ' + channels);
 
                 // Stop Connection
                 if (!channels) return;
 
                 // Connect to PubNub Subscribe Servers
                 SUB_RECEIVER = xdr({
+                    abort    : true,
                     timeout  : sub_timeout,
                     callback : jsonp,
                     data     : { 'uuid' : UUID },
@@ -528,6 +536,7 @@ function PN_API(setup) {
 
                             return function() {
                                 var channel = list.shift()||'';
+                                //console.log(channel);
                                 return [
                                 (CHANNELS[channel]||{})
                                 .callback||SUB_CALLBACK,
@@ -537,9 +546,12 @@ function PN_API(setup) {
                             };
                         })();
 
+                        console.log(messages);
+                        //console.log(CHANNELS);
                         each( messages[0], function(msg) {
                             var next = next_callback();
-                            if (!CHANNELS[next[1]].subscribed) return;
+                            //console.log(next);
+                            if (CHANNELS[next[1]] && !CHANNELS[next[1]].subscribed) return;
                             next[0]( msg, messages, next[1] );
                         } );
 
@@ -693,7 +705,7 @@ function unique() { return'x'+ ++NOW+''+(+new Date) }
  */
 function log(message) { console['log'](message) }
 
-
+var request;
 /**
  * Request
  * =======
@@ -703,14 +715,15 @@ function log(message) { console['log'](message) }
  *     fail    : function() {}
  *  });
  */
-function xdr( setup ) {
+function xdr1( setup ) {
     //setup.url.unshift('');
     var url     = setup.url.join(URLBIT)
-    ,   success = setup.success
+    ,   success = setup.success || function(){}
     ,   origin  = setup.origin || 'pubsub.pubnub.com'
     ,   ssl     = setup.ssl
     ,   failed  = 0
     ,   body    = ''
+    ,   abort   = setup.abort || false
     ,   fail    = function(e) {
             if (failed) return;
             failed = 1;
@@ -724,13 +737,16 @@ function xdr( setup ) {
         }
         url += params.join(PARAMSBIT);
     }
-    //console.log(url);
+    if (abort) console.log(url);
+    var options = {
+		hostname : origin,
+		port : ssl ? 443 : 80,
+		path : url,
+		method : 'GET'
+	};
     try {
-        (ssl ? https : http).get( {
-            host : origin,
-            port : ssl ? 443 : 80,
-            path : url
-        }, function(response) {
+        if (request && abort ) { request.abort(); }
+        request = (ssl ? https : http).request(options, function(response) {
             response.setEncoding('utf8');
             response.on( 'error', fail );
             response.on( 'data', function (chunk) {
@@ -746,9 +762,102 @@ function xdr( setup ) {
                    fail();
             } );
         }).on( 'error', fail );
+		request.end();
+        if (!abort) request = null;
     } catch(e) { fail(); }
 }
 
+/**
+ * CORS XHR Request
+ * ================
+ *  xdr({
+ *     url     : ['http://www.blah.com/url'],
+ *     success : function(response) {},
+ *     fail    : function() {}
+ *  });
+ */
+function xdr( setup ) {
+    var xhr, response
+    ,   finished = function() {
+            if (loaded) return;
+                loaded = 1;
+
+            clearTimeout(timer);
+
+            try       { response = JSON['parse'](xhr.responseText); }
+            catch (r) { return done(1); }
+
+            success(response);
+        }
+    ,   complete = 0
+    ,   loaded   = 0
+    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
+    ,   timer    = timeout( function(){done(1)}, xhrtme )
+    ,   fail     = setup.fail    || function(){}
+    ,   success  = setup.success || function(){}
+    ,   done     = function(failed) {
+            if (complete) return;
+                complete = 1;
+
+            clearTimeout(timer);
+
+            if (xhr) {
+                xhr.onerror = xhr.onload = null;
+                xhr.abort && xhr.abort();
+                xhr = null;
+            }
+
+            failed && fail();
+        };
+
+    // Send
+    try {
+    var options = {
+		hostname : origin,
+		port : ssl ? 443 : 80,
+		path : url,
+		method : 'GET'
+	};
+        xhr = (ssl ? https : http).request(options, function(response) {
+            response.setEncoding('utf8');
+            response.on( 'error', xhr.onabort);
+            response.on( 'data', function (chunk) {
+                if (chunk) body += chunk;
+            } );
+            response.on( 'end', function () {
+                try {
+                    var jsonb = JSON.parse(body);
+                } catch(e) { fail(); }
+                if (body && jsonb)
+                   return success(jsonb);
+                else
+                   fail();
+            } );
+        }).on( 'error', fail );
+		xhr.end();
+    
+        xhr = FDomainRequest()      ||
+              window.XDomainRequest &&
+              new XDomainRequest()  ||
+              new XMLHttpRequest();
+
+        xhr.onerror = xhr.onabort   = function(){ done(1) };
+        xhr.onload  = xhr.onloadend = finished;
+        xhr.timeout = xhrtme;
+
+
+        xhr.open( 'GET', url, (typeof(setup.blocking === 'undefined')) );
+        xhr.send();
+    }
+    catch(eee) {
+        done(0);
+        XORIGN = 0;
+        return xdr(setup);
+    }
+
+    // Return 'done'
+    return done;
+}
 
 
 /* =-=====================================================================-= */
@@ -765,4 +874,5 @@ exports.init = function(setup) {
     PN.ready();
     return PN;
 }
+PUBNUB = exports.init({});
 exports.unique = unique

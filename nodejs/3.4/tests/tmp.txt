@@ -1,0 +1,44 @@
+
+  http://ps13.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D1/0/0?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+[ [], '13630681777626684' ]
+http://ps13.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D1/0/13630681777626684?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+[ [ 'Hi from Javascript' ], '13630681785745754' ]
+CALLBACK javascript-test-channel-1363068172601-1
+javascript-test-channel-1363068172601-1
+Hi from Javascript
+{ 'javascript-test-channel-1363068172601-1': 
+   { name: 'javascript-test-channel-1363068172601-1',
+     connected: 1,
+     disconnected: undefined,
+     subscribed: 1,
+     callback: [Function],
+     connect: [Function],
+     error: [Function],
+     disconnect: [Function],
+     reconnect: [Function] } }
+DELETED javascript-test-channel-1363068172601-1
+{}
+{}
+DELETED javascript-test-channel-1363068172601-1-pnpres
+{}
+UNSUBjavascript-test-channel-1363068172601-1
+===============
+․http://ps13.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2/0/0?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps16.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2/0/0?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+[ [], '13630681795223654' ]
+․http://ps16.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps19.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps17.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps1.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps3.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps5.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+․http://ps7.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+http://ps8.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps10.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+․http://ps12.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D5/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+․http://ps13.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D5%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D6/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+http://ps14.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D2%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D3/0/13630681795223654?uuid=f4d1e9ba-5e13-45a2-9d40-83f5415bb529
+http://ps16.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D5%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D6/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+http://ps18.pubnub.com/subscribe/demo/javascript%2Dtest%2Dchannel%2D1363068172601%2D4%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D5%2Cjavascript%2Dtest%2Dchannel%2D1363068172601%2D6/0/0?uuid=3982b25e-503e-4ed5-a2e1-9e125e7e5b26
+․
+
