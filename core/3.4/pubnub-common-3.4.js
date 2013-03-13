@@ -188,6 +188,7 @@ function PN_API(setup) {
     ,   SUB_CHANNEL   = 0
     ,   SUB_RECEIVER  = 0
     ,   SUB_RESTORE   = 0
+    ,   SUB_WINDOWING = 10
     ,   SUB_BUFF_WAIT = 0
     ,   TIMETOKEN     = 0
     ,   PUBLISH_KEY   = setup['publish_key']   || ''
@@ -226,11 +227,12 @@ function PN_API(setup) {
             if (!callback)      return error('Missing Callback');
             if (!SUBSCRIBE_KEY) return error('Missing Subscribe Key');
 
-            params["count"]   = count;
-            params["reverse"] = reverse;
+            params['stringtoken'] = 'true';
+            params['count']       = count;
+            params['reverse']     = reverse;
 
-            if (start) params["start"] = start;
-            if (end)   params["end"]   = end;
+            if (start) params['start'] = start;
+            if (end)   params['end']   = end;
 
             // Send Message
             xdr({
@@ -299,12 +301,11 @@ function PN_API(setup) {
             PUBNUB.time(function(time){ });
         */
         'time' : function(callback) {
-            var jsonp  = jsonp_cb()
-            ,   origin = nextorigin(ORIGIN);
+            var jsonp = jsonp_cb();
 
             xdr({
                 callback : jsonp,
-                url      : [origin, 'time', jsonp],
+                url      : [ORIGIN, 'time', jsonp],
                 success  : function(response) { callback(response[0]) },
                 fail     : function() { callback(0) }
             });
@@ -405,6 +406,7 @@ function PN_API(setup) {
             ,   presence      = args['presence']      || 0
             ,   noheresync    = args['noheresync']    || 0
             ,   sub_timeout   = args['timeout']       || SUB_TIMEOUT
+            ,   windowing     = args['windowing']     || SUB_WINDOWING
             ,   restore       = args['restore']
             ,   origin        = nextorigin(ORIGIN);
 
@@ -499,13 +501,12 @@ function PN_API(setup) {
                                     channel.disconnected = 0;
                                     channel.reconnect(channel.name);
                                 }
-                                else channel.error();
                             });
                         });
                     },
                     success : function(messages) {
-                        if (!messages) return timeout( _connect, 10 );
-                        
+                        if (!messages) return timeout( _connect, windowing );
+
                         // Connect
                         each_channel(function(channel){
                             if (channel.connected) return;
@@ -543,7 +544,7 @@ function PN_API(setup) {
                             next[0]( msg, messages, next[1] );
                         } );
 
-                        timeout( _connect, 10 );
+                        timeout( _connect, windowing );
                     }
                 });
             }

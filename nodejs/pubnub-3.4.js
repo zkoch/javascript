@@ -170,7 +170,6 @@ function encode(path) {
 */
 function generate_channel_list(channels) {
     var list = [];
-    //console.log(channels);
     each( channels, function( channel, status ) {
         if (status.subscribed) list.push(channel);
     } );
@@ -189,6 +188,7 @@ function PN_API(setup) {
     ,   SUB_CHANNEL   = 0
     ,   SUB_RECEIVER  = 0
     ,   SUB_RESTORE   = 0
+    ,   SUB_WINDOWING = 10
     ,   SUB_BUFF_WAIT = 0
     ,   TIMETOKEN     = 0
     ,   PUBLISH_KEY   = setup['publish_key']   || ''
@@ -227,11 +227,12 @@ function PN_API(setup) {
             if (!callback)      return error('Missing Callback');
             if (!SUBSCRIBE_KEY) return error('Missing Subscribe Key');
 
-            params["count"]   = count;
-            params["reverse"] = reverse;
+            params['stringtoken'] = 'true';
+            params['count']       = count;
+            params['reverse']     = reverse;
 
-            if (start) params["start"] = start;
-            if (end)   params["end"]   = end;
+            if (start) params['start'] = start;
+            if (end)   params['end']   = end;
 
             // Send Message
             xdr({
@@ -300,12 +301,11 @@ function PN_API(setup) {
             PUBNUB.time(function(time){ });
         */
         'time' : function(callback) {
-            var jsonp  = jsonp_cb()
-            ,   origin = nextorigin(ORIGIN);
+            var jsonp = jsonp_cb();
 
             xdr({
                 callback : jsonp,
-                url      : [origin, 'time', jsonp],
+                url      : [ORIGIN, 'time', jsonp],
                 success  : function(response) { callback(response[0]) },
                 fail     : function() { callback(0) }
             });
@@ -375,19 +375,14 @@ function PN_API(setup) {
             // Prepare Channel(s)
             channel = map( (
                 channel.join ? channel.join(',') : ''+channel
-            ).split(','), function(channel) {
+                ).split(','), function(channel) {
                 return channel + ',' + channel + PRESENCE_SUFFIX;
             } ).join(',');
 
             // Iterate over Channels
             each( channel.split(','), function(channel) {
                 if (READY) LEAVE( channel, 0 );
-                //console.log('UNSET ' + channel);
-
                 CHANNELS[channel] = 0;
-                //console.log(CHANNELS[channel]);
-                // /console.log(CHANNELS);
-                //delete CHANNELS[channel]
             } );
 
             // ReOpen Connection if Any Channels Left
@@ -411,7 +406,7 @@ function PN_API(setup) {
             ,   presence      = args['presence']      || 0
             ,   noheresync    = args['noheresync']    || 0
             ,   sub_timeout   = args['timeout']       || SUB_TIMEOUT
-            //,   windowing     = args['windowing']     || SUB_WINDOWING
+            ,   windowing     = args['windowing']     || SUB_WINDOWING
             ,   restore       = args['restore']
             ,   origin        = nextorigin(ORIGIN);
 
@@ -473,7 +468,6 @@ function PN_API(setup) {
             function _connect() {
                 var jsonp    = jsonp_cb()
                 ,   channels = generate_channel_list(CHANNELS).join(',');
-                    //console.log((new Date).toISOString() + ' CHANNEL LIST ' + channels);
 
                 // Stop Connection
                 if (!channels) return;
@@ -511,8 +505,8 @@ function PN_API(setup) {
                         });
                     },
                     success : function(messages) {
-                        if (!messages) return timeout( _connect, 10 );
-                        
+                        if (!messages) return timeout( _connect, windowing );
+
                         // Connect
                         each_channel(function(channel){
                             if (channel.connected) return;
@@ -535,7 +529,6 @@ function PN_API(setup) {
 
                             return function() {
                                 var channel = list.shift()||'';
-                                //console.log(channel);
                                 return [
                                 (CHANNELS[channel]||{})
                                 .callback||SUB_CALLBACK,
@@ -545,16 +538,13 @@ function PN_API(setup) {
                             };
                         })();
 
-                        //console.log(messages);
-                        //console.log(CHANNELS);
                         each( messages[0], function(msg) {
                             var next = next_callback();
                             if (!CHANNELS[next[1]].subscribed) return;
-                            //console.log('NEXT ' + next);
                             next[0]( msg, messages, next[1] );
                         } );
 
-                        timeout( _connect, 10 );
+                        timeout( _connect, windowing );
                     }
                 });
             }
@@ -687,9 +677,9 @@ var NOW    = 1
 ,   https  = require('https')
 ,   URLBIT = '/'
 ,   PARAMSBIT = '&'
-,   DEF_WINDOWING   = 10     // MILLISECONDS.
-,   DEF_TIMEOUT     = 10000  // MILLISECONDS.
 ,   XHRTME = 310000
+,   DEF_TIMEOUT     = 10000
+,   SECOND          = 1000
 ,   XORIGN = 1;
 
 /**
@@ -706,9 +696,6 @@ function unique() { return'x'+ ++NOW+''+(+new Date) }
  */
 function log(message) { console['log'](message) }
 
-function xdr1(setup) {
-    return xdr(setup);
-}
 
 /**
  * Request
@@ -723,6 +710,7 @@ function xdr( setup ) {
     //setup.url.unshift('');
     var url     = setup.url.join(URLBIT)
     ,   request    
+    ,   response
     ,   success = setup.success || function(){}
     ,   fail     = setup.fail    || function(){}
     ,   origin  = setup.origin || 'pubsub.pubnub.com'
@@ -737,10 +725,8 @@ function xdr( setup ) {
                 loaded = 1;
 
             clearTimeout(timer);    
-            //console.log(body);
             try       { response = JSON['parse'](body); }
-            catch (r) { console.log(r);return done(1); }
-            //console.log(response);
+            catch (r) { return done(1); }
             success(response);
         }
     ,   done    = function(failed) {
@@ -750,12 +736,11 @@ function xdr( setup ) {
             clearTimeout(timer);
 
             if (request) {
-                console.log('abort');
                 request.on('error', function(){});
                 request.on('data', function(){});
                 request.on('end', function(){});
                 request.abort && request.abort();
-                reuest = null;
+                request = null;
             }
             failed && fail();
         }
@@ -770,15 +755,13 @@ function xdr( setup ) {
         }
         url += params.join(PARAMSBIT);
     }
-    console.log(url);
     var options = {
-		hostname : origin,
-		port : ssl ? 443 : 80,
-		path : url,
-		method : 'GET'
-	};
+        hostname : origin,
+        port : ssl ? 443 : 80,
+        path : url,
+        method : 'GET'
+    };
     try {
-        //console.log('sending request');
         request = (ssl ? https : http).request(options, function(response) {
             response.setEncoding('utf8');
             response.on( 'error', function(){done(1)});
@@ -792,14 +775,13 @@ function xdr( setup ) {
         request.timeout = xhrtme;
 
     } catch(e) { 
-        console.log(e);
         done(0);
-        console.log('NEED TO RETURN XDR(SETUP) HERE');
         //return xdr(setup); 
     }
 
     return done;
 }
+
 
 
 /* =-=====================================================================-= */
@@ -811,7 +793,7 @@ function xdr( setup ) {
 exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
-    setup['timeout'] = 10000;
+    setup['timeout'] = 1000;
     PN.__proto__ = PN_API(setup);    
     PN.ready();
     return PN;

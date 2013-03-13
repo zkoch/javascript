@@ -1,6 +1,6 @@
 include ../Makefile.inc
 
-PUBNUB_COMMON_JS=$(CORE_DIR)/pubnub-common.js
+PUBNUB_COMMON_JS=$(CORE_DIR)/$(VERSION)/pubnub-common-$(VERSION).js
 PUBNUB_NODE_JS=$(VERSION)/pubnub-$(VERSION).js
 PUBNUB_GIBBERISH_AES=$(CORE_DIR)/crypto/gibberish-aes.js
 PUBNUB_CRYPTO_JS=$(CORE_DIR)/crypto/encrypt-pubnub.js

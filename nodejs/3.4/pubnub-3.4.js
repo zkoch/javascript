@@ -38,6 +38,8 @@ var NOW    = 1
 ,   URLBIT = '/'
 ,   PARAMSBIT = '&'
 ,   XHRTME = 310000
+,   DEF_TIMEOUT     = 10000
+,   SECOND          = 1000
 ,   XORIGN = 1;
 
 /**
@@ -67,16 +69,44 @@ function log(message) { console['log'](message) }
 function xdr( setup ) {
     //setup.url.unshift('');
     var url     = setup.url.join(URLBIT)
+    ,   request    
+    ,   response
     ,   success = setup.success || function(){}
+    ,   fail     = setup.fail    || function(){}
     ,   origin  = setup.origin || 'pubsub.pubnub.com'
     ,   ssl     = setup.ssl
     ,   failed  = 0
-    ,   body    = ''
-    ,   fail    = function(e) {
-            if (failed) return;
-            failed = 1;
-            (setup.fail||function(){})(e);
-        };
+    ,   complete = 0
+    ,   loaded   = 0
+    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
+    ,   body = ''
+    ,   finished = function() {
+            if (loaded) return;
+                loaded = 1;
+
+            clearTimeout(timer);    
+            try       { response = JSON['parse'](body); }
+            catch (r) { return done(1); }
+            success(response);
+        }
+    ,   done    = function(failed) {
+            if (complete) return;
+                complete = 1;
+
+            clearTimeout(timer);
+
+            if (request) {
+                request.on('error', function(){});
+                request.on('data', function(){});
+                request.on('end', function(){});
+                request.abort && request.abort();
+                request = null;
+            }
+            failed && fail();
+        }
+        ,   timer  = timeout( function(){done(1);} , xhrtme );
+
+
     if (setup.data) {
         var params = [];
         url += "?";
@@ -85,29 +115,31 @@ function xdr( setup ) {
         }
         url += params.join(PARAMSBIT);
     }
-    //console.log(url);
+    var options = {
+        hostname : origin,
+        port : ssl ? 443 : 80,
+        path : url,
+        method : 'GET'
+    };
     try {
-        (ssl ? https : http).get( {
-            host : origin,
-            port : ssl ? 443 : 80,
-            path : url
-        }, function(response) {
+        request = (ssl ? https : http).request(options, function(response) {
             response.setEncoding('utf8');
-            response.on( 'error', fail );
+            response.on( 'error', function(){done(1)});
+            response.on( 'abort', function(){done(1)});
             response.on( 'data', function (chunk) {
                 if (chunk) body += chunk;
             } );
-            response.on( 'end', function () {
-                try {
-                    var jsonb = JSON.parse(body);
-                } catch(e) { fail(); }
-                if (body && jsonb)
-                   return success(jsonb);
-                else
-                   fail();
-            } );
-        }).on( 'error', fail );
-    } catch(e) { fail(); }
+            response.on( 'end', function(){finished();});
+        }).on( 'error', function(){done(1)});
+        request.end();
+        request.timeout = xhrtme;
+
+    } catch(e) { 
+        done(0);
+        //return xdr(setup); 
+    }
+
+    return done;
 }
 
 
