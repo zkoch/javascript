@@ -375,19 +375,19 @@ function PN_API(setup) {
             // Prepare Channel(s)
             channel = map( (
                 channel.join ? channel.join(',') : ''+channel
-                ).split(','), function(channel) {
+            ).split(','), function(channel) {
                 return channel + ',' + channel + PRESENCE_SUFFIX;
             } ).join(',');
 
             // Iterate over Channels
             each( channel.split(','), function(channel) {
                 if (READY) LEAVE( channel, 0 );
-                console.log(CHANNELS);
+                //console.log('UNSET ' + channel);
+
                 CHANNELS[channel] = 0;
-                //delete CHANNELS[channel];
-                console.log('DELETED ' + channel);
-                console.log(CHANNELS);
-                //CHANNELS[channel] = 0;
+                //console.log(CHANNELS[channel]);
+                // /console.log(CHANNELS);
+                //delete CHANNELS[channel]
             } );
 
             // ReOpen Connection if Any Channels Left
@@ -411,6 +411,7 @@ function PN_API(setup) {
             ,   presence      = args['presence']      || 0
             ,   noheresync    = args['noheresync']    || 0
             ,   sub_timeout   = args['timeout']       || SUB_TIMEOUT
+            //,   windowing     = args['windowing']     || SUB_WINDOWING
             ,   restore       = args['restore']
             ,   origin        = nextorigin(ORIGIN);
 
@@ -479,7 +480,6 @@ function PN_API(setup) {
 
                 // Connect to PubNub Subscribe Servers
                 SUB_RECEIVER = xdr({
-                    abort    : true,
                     timeout  : sub_timeout,
                     callback : jsonp,
                     data     : { 'uuid' : UUID },
@@ -507,7 +507,6 @@ function PN_API(setup) {
                                     channel.disconnected = 0;
                                     channel.reconnect(channel.name);
                                 }
-                                else channel.error();
                             });
                         });
                     },
@@ -546,12 +545,12 @@ function PN_API(setup) {
                             };
                         })();
 
-                        console.log(messages);
+                        //console.log(messages);
                         //console.log(CHANNELS);
                         each( messages[0], function(msg) {
                             var next = next_callback();
-                            //console.log(next);
-                            if (CHANNELS[next[1]] && !CHANNELS[next[1]].subscribed) return;
+                            if (!CHANNELS[next[1]].subscribed) return;
+                            //console.log('NEXT ' + next);
                             next[0]( msg, messages, next[1] );
                         } );
 
@@ -688,6 +687,8 @@ var NOW    = 1
 ,   https  = require('https')
 ,   URLBIT = '/'
 ,   PARAMSBIT = '&'
+,   DEF_WINDOWING   = 10     // MILLISECONDS.
+,   DEF_TIMEOUT     = 10000  // MILLISECONDS.
 ,   XHRTME = 310000
 ,   XORIGN = 1;
 
@@ -705,7 +706,10 @@ function unique() { return'x'+ ++NOW+''+(+new Date) }
  */
 function log(message) { console['log'](message) }
 
-var request;
+function xdr1(setup) {
+    return xdr(setup);
+}
+
 /**
  * Request
  * =======
@@ -715,20 +719,49 @@ var request;
  *     fail    : function() {}
  *  });
  */
-function xdr1( setup ) {
+function xdr( setup ) {
     //setup.url.unshift('');
     var url     = setup.url.join(URLBIT)
+    ,   request    
     ,   success = setup.success || function(){}
+    ,   fail     = setup.fail    || function(){}
     ,   origin  = setup.origin || 'pubsub.pubnub.com'
     ,   ssl     = setup.ssl
     ,   failed  = 0
-    ,   body    = ''
-    ,   abort   = setup.abort || false
-    ,   fail    = function(e) {
-            if (failed) return;
-            failed = 1;
-            (setup.fail||function(){})(e);
-        };
+    ,   complete = 0
+    ,   loaded   = 0
+    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
+    ,   body = ''
+    ,   finished = function() {
+            if (loaded) return;
+                loaded = 1;
+
+            clearTimeout(timer);    
+            //console.log(body);
+            try       { response = JSON['parse'](body); }
+            catch (r) { console.log(r);return done(1); }
+            //console.log(response);
+            success(response);
+        }
+    ,   done    = function(failed) {
+            if (complete) return;
+                complete = 1;
+
+            clearTimeout(timer);
+
+            if (request) {
+                console.log('abort');
+                request.on('error', function(){});
+                request.on('data', function(){});
+                request.on('end', function(){});
+                request.abort && request.abort();
+                reuest = null;
+            }
+            failed && fail();
+        }
+        ,   timer  = timeout( function(){done(1);} , xhrtme );
+
+
     if (setup.data) {
         var params = [];
         url += "?";
@@ -737,7 +770,7 @@ function xdr1( setup ) {
         }
         url += params.join(PARAMSBIT);
     }
-    if (abort) console.log(url);
+    console.log(url);
     var options = {
 		hostname : origin,
 		port : ssl ? 443 : 80,
@@ -745,117 +778,26 @@ function xdr1( setup ) {
 		method : 'GET'
 	};
     try {
-        if (request && abort ) { request.abort(); }
+        //console.log('sending request');
         request = (ssl ? https : http).request(options, function(response) {
             response.setEncoding('utf8');
-            response.on( 'error', fail );
+            response.on( 'error', function(){done(1)});
+            response.on( 'abort', function(){done(1)});
             response.on( 'data', function (chunk) {
                 if (chunk) body += chunk;
             } );
-            response.on( 'end', function () {
-                try {
-                    var jsonb = JSON.parse(body);
-                } catch(e) { fail(); }
-                if (body && jsonb)
-                   return success(jsonb);
-                else
-                   fail();
-            } );
-        }).on( 'error', fail );
-		request.end();
-        if (!abort) request = null;
-    } catch(e) { fail(); }
-}
+            response.on( 'end', function(){finished();});
+        }).on( 'error', function(){done(1)});
+        request.end();
+        request.timeout = xhrtme;
 
-/**
- * CORS XHR Request
- * ================
- *  xdr({
- *     url     : ['http://www.blah.com/url'],
- *     success : function(response) {},
- *     fail    : function() {}
- *  });
- */
-function xdr( setup ) {
-    var xhr, response
-    ,   finished = function() {
-            if (loaded) return;
-                loaded = 1;
-
-            clearTimeout(timer);
-
-            try       { response = JSON['parse'](xhr.responseText); }
-            catch (r) { return done(1); }
-
-            success(response);
-        }
-    ,   complete = 0
-    ,   loaded   = 0
-    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
-    ,   timer    = timeout( function(){done(1)}, xhrtme )
-    ,   fail     = setup.fail    || function(){}
-    ,   success  = setup.success || function(){}
-    ,   done     = function(failed) {
-            if (complete) return;
-                complete = 1;
-
-            clearTimeout(timer);
-
-            if (xhr) {
-                xhr.onerror = xhr.onload = null;
-                xhr.abort && xhr.abort();
-                xhr = null;
-            }
-
-            failed && fail();
-        };
-
-    // Send
-    try {
-    var options = {
-		hostname : origin,
-		port : ssl ? 443 : 80,
-		path : url,
-		method : 'GET'
-	};
-        xhr = (ssl ? https : http).request(options, function(response) {
-            response.setEncoding('utf8');
-            response.on( 'error', xhr.onabort);
-            response.on( 'data', function (chunk) {
-                if (chunk) body += chunk;
-            } );
-            response.on( 'end', function () {
-                try {
-                    var jsonb = JSON.parse(body);
-                } catch(e) { fail(); }
-                if (body && jsonb)
-                   return success(jsonb);
-                else
-                   fail();
-            } );
-        }).on( 'error', fail );
-		xhr.end();
-    
-        xhr = FDomainRequest()      ||
-              window.XDomainRequest &&
-              new XDomainRequest()  ||
-              new XMLHttpRequest();
-
-        xhr.onerror = xhr.onabort   = function(){ done(1) };
-        xhr.onload  = xhr.onloadend = finished;
-        xhr.timeout = xhrtme;
-
-
-        xhr.open( 'GET', url, (typeof(setup.blocking === 'undefined')) );
-        xhr.send();
-    }
-    catch(eee) {
+    } catch(e) { 
+        console.log(e);
         done(0);
-        XORIGN = 0;
-        return xdr(setup);
+        console.log('NEED TO RETURN XDR(SETUP) HERE');
+        //return xdr(setup); 
     }
 
-    // Return 'done'
     return done;
 }
 
@@ -869,7 +811,7 @@ function xdr( setup ) {
 exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
-    setup['timeout'] = 1000;
+    setup['timeout'] = 10000;
     PN.__proto__ = PN_API(setup);    
     PN.ready();
     return PN;
