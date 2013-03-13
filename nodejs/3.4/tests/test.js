@@ -155,10 +155,13 @@
 			var ch = channel + '-' + 'here-now' ;
 				pubnub.subscribe({channel : ch , 
 					connect : function(response) {
-						pubnub.here_now( {channel : ch, callback : function(data) {
-							assert.deepEqual(data.occupancy, 1);
-							done();
-						}});
+                        setTimeout(function() {
+							pubnub.here_now( {channel : ch, callback : function(data) {
+								assert.deepEqual(data.occupancy, 1);
+								pubnub.unsubscribe({channel : ch});
+								done();
+							}})}, 5000
+						);
 						pubnub.publish({channel: ch , message : message_jsona,
 							callback : function(response) {
 								assert.deepEqual(response[0],1);
@@ -167,7 +170,6 @@
 					},
 					callback : function(response) {
                         assert.deepEqual(response,message_jsona);
-						pubnub.unsubscribe({channel : ch});
 					}
 
 				})
