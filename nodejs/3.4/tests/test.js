@@ -160,7 +160,7 @@
 								assert.deepEqual(data.occupancy, 1);
 								pubnub.unsubscribe({channel : ch});
 								done();
-							}})}, 5000
+							}})}, 10000
 						);
 						pubnub.publish({channel: ch , message : message_jsona,
 							callback : function(response) {
@@ -196,23 +196,26 @@
 
 		})
 		it('should return 2 messages when 2 messages were published on channel', function(done) {
-
-			pubnub.history({channel : history_channel,
-				callback : function(response) {
-					assert.deepEqual(response[0].length,2);
-					done();
-				}
-			})
+			setTimeout(function() {
+				pubnub.history({channel : history_channel,
+					callback : function(response) {
+						assert.deepEqual(response[0].length,2);
+						done();
+					}
+				})
+			},5000);
 		})
 		it('should return 1 message when 2 messages were published on channel and count is 1', function(done) {
 
-			pubnub.history({channel : history_channel,
-				count : 1,
-				callback : function(response) {
-					assert.deepEqual(response[0].length,1);
-					done();
-				}
-			})
+			setTimeout(function() {
+				pubnub.history({channel : history_channel,
+					count : 1,
+					callback : function(response) {
+						assert.deepEqual(response[0].length,1);
+						done();
+					}
+				})
+			},5000);
 		})
 	})
 
