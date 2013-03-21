@@ -6,13 +6,6 @@
 		subscribe_key 	: 'demo'
 	});
 
-	var pubnub_enc = PUBNUB.init({
-		publish_key 	: 'demo',
-		subscribe_key 	: 'demo',
-		secret_key		: 'demo',
-		cipher_key		: 'demo'
-	});
-
 	var channel = 'javascript-test-channel-' + Date.now();
     var count = 0;
 
@@ -21,7 +14,7 @@
 	var message_jsona = ['message' , 'Hi Hi from javascript'];
 
 	describe('Pubnub', function() {
-		this.timeout(20000);
+		this.timeout(40000);
 		describe('#publish()', function(){
 			it('should publish strings without error', function(done){
 				var ch = channel + '-' + ++count;
@@ -72,60 +65,6 @@
 					callback : function(response) {
                         assert.deepEqual(response,message_jsona);
 						pubnub.unsubscribe({channel : ch});
-						done();
-					}
-
-				})
-			})
-			it('should publish strings with encryption enabled without error', function(done){
-				var ch = channel + '-' + ++count;
-				pubnub_enc.subscribe({channel : ch , 
-					connect : function(response) {
-						pubnub_enc.publish({channel: ch , message : message_string,
-							callback : function(response) {
-								assert.deepEqual(response[0],1);
-							}
-						});
-					},
-					callback : function(response) {
-                        assert.deepEqual(response,message_string);
-						pubnub_enc.unsubscribe({channel : ch});
-						done();
-					}
-
-				})
-			})
-			it('should publish json objects with encryption enabled without error', function(done){
-				var ch = channel + '-' + ++count;
-				pubnub_enc.subscribe({channel : ch , 
-					connect : function(response) {
-						pubnub_enc.publish({channel: ch , message : message_jsono,
-							callback : function(response) {
-								assert.deepEqual(response[0],1);
-							}
-						});
-					},
-					callback : function(response) {
-                        assert.deepEqual(response,message_jsono);
-						pubnub_enc.unsubscribe({channel : ch});
-						done();
-					}
-
-				})
-			})
-			it('should publish json arrays with encryption enabled without', function(done){
-				var ch = channel + '-' + ++count;
-				pubnub_enc.subscribe({channel : ch , 
-					connect : function(response) {
-						pubnub_enc.publish({channel: ch , message : message_jsona,
-							callback : function(response) {
-								assert.deepEqual(response[0],1);
-							}
-						});
-					},
-					callback : function(response) {
-                        assert.deepEqual(response,message_jsona);
-						pubnub_enc.unsubscribe({channel : ch});
 						done();
 					}
 
