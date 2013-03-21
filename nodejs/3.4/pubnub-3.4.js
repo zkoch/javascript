@@ -136,7 +136,7 @@ function xdr( setup ) {
 
     } catch(e) { 
         done(0);
-        //return xdr(setup); 
+        return xdr(setup); 
     }
 
     return done;
