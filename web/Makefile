@@ -15,15 +15,16 @@ all: build
 build: $(PUBNUB_JS) $(PUBNUB_MIN_JS)
 
 $(TOPOUT) : $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS)
-	echo -n "// " >> $(TOPOUT)
-	echo -n $(VERSION) >> $(TOPOUT)
+	echo $(ECHO)
+	$(ECHO) -n "// " > $(TOPOUT)
+	$(ECHO) -n $(VERSION) >> $(TOPOUT)
 	cat $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS) >> $(TOPOUT)
 
 $(MINOUT) : $(TOPOUT)
-	echo -n "// " >> $(MINOUT)
-	echo "(function(){" >> $(MINOUT)
+	$(ECHO) -n "// " >> $(MINOUT)
+	$(ECHO) "(function(){" >> $(MINOUT)
 	java -jar $(GOOGLE_MINIFY) --js=$(TOPOUT) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(MINOUT)
-	echo "})();" >> $(MINOUT)
+	$(ECHO) "})();" >> $(MINOUT)
 
 $(PUBNUB_JS) : $(TOPOUT)
 	cp $(TOPOUT) $(PUBNUB_JS)
