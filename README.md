@@ -101,22 +101,143 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 </script>
 ```
 
-## ADVANCED STYLE
+## ADVANCED SUBSCRIBE CONNECTIVITY OPTIONS/CALLBACKS
 ```html
 <div id=pubnub pub-key=demo sub-key=demo></div>
 <script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
 <script>(function(){
     PUBNUB.subscribe({
-        channel    : "hello_world",        // CONNECT TO THIS CHANNEL.
-        restore    : false,                // FETCH MISSED MESSAGES ON PAGE CHANGES.
-        message    : function(message) {}, // RECEIVED A MESSAGE.
-        presence   : function(message) {}, // OTHER USERS JOIN/LEFT CHANNEL.
-        connect    : function() {},        // CONNECTION ESTABLISHED.
-        disconnect : function() {},        // LOST CONNECTION (OFFLINE).
-        reconnect  : function() {}         // CONNECTION BACK ONLINE!
+        channel    : "hello_world",                     // CONNECT TO THIS CHANNEL.
+        restore    : false,                             // FETCH MISSED MESSAGES ON PAGE CHANGES.
+        message    : function( message, env, channel ), // RECEIVED A MESSAGE.
+        presence   : function( message, env, channel ), // OTHER USERS JOIN/LEFT CHANNEL.
+        connect    : function() {},                     // CONNECTION ESTABLISHED.
+        disconnect : function() {},                     // LOST CONNECTION (OFFLINE).
+        reconnect  : function() {}                      // CONNECTION BACK ONLINE!
     })
 })();
 </script>
+```
+
+## FULL MULTIPLEXING (Single TCP Socket)
+
+>Multiplexing enhances mobile performance and battery savings.
+
+The PubNub Network today is the only vendor that supports real channel
+multiplexing with a single TCP Socket.
+With Multiplexing, you are able to subscribe to a group of channels
+while conserving device resources and
+improving performance of message delivery;
+all with a single network connection.
+It is easy to use multiplexing with any `3.4` client SDKs because
+it is transparent and automatic!
+Here is an example of using Channel Multiplexing in JavaScript:
+
+#### Adding Channels - Just keep adding!
+
+> You can continue to add channels with subsequent calls.
+
+>**NOTE:** See the Multiplexing Example:
+>[Multiplexing Test](web/tests/multiplexing.html)
+
+```javascript
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Setup your Receiver Function
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+function receiver( message, envelope, channel ) { /*...*/ }
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// ADD ARRAY - You can add an array of channel names to connect.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.subscribe({
+    channel : ['chan1','chan2','chan3'],
+    message : receiver
+})
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// ADD LIST - You can add a comma separated list of channel names.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.subscribe({
+    channel : 'chan4,chan6,chan7',
+    message : receiver
+})
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// ADD ONE MORE - You can add one channel at a time.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.subscribe({
+    channel : 'chan8',
+    message : receiver
+})
+```
+
+#### Removing Channels
+
+```javascript
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// REMOVE ARRAY
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.unsubscribe({ channel : ['chan1','chan2','chan3'] })
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// REMOVE LIST
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.unsubscribe({ channel : 'chan4,chan6,chan7' })
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// REMOVE ONE
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+pubnub.unsubscribe({ channel : 'chan8' })
+```
+
+That's it!  It's easy to take advantage of multiplexing.
+If you have any questions please contact help@pubnub.com
+
+
+## AES Cryptography
+
+>**NOTE:** This cryptography is compatible with all other 3.4 PubNub SDKs!
+Easily encrypt your PubNub messages using AES by setting a single flag
+when you publish a message and subscribing as well.
+Even better, this encryption works across all `3.4` PubNub clients,
+meaning you can encrypt/decrypt across these environments.
+
+You can now use PubNub AES256 Cryptograhpy with JavaScript and other
+SDK languages easily by following this starting point for JavaScript.
+We’ve worked hard to make sure that using AES encryption in PubNub is easy.
+The complexity of encrypting and decrypting the data is built into
+the free PubNub client libraries (since our libraries
+are open source, you’re welcome to see how we did it).
+To use AES encryption in PubNub, simply do the following:
+
+```html
+<script src=https://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js></script>
+<script src=https://pubnub.a.ssl.fastly.net/pubnub-crypto-3.4.2.min.js></script>
+<script>(function(){
+    var secure_pubnub = PUBNUB.secure({
+        publish_key   : 'demo',
+        subscribe_key : 'demo',
+        ssl           : true,
+        cipher_key    : 'my-super-secret-password-key'
+    });
+
+    secure_pubnub.subscribe({
+        channel : 'my_channel',
+        connect : send_hello,
+        message : receive_hello
+    });
+
+    function receive_hello(hello) {
+        alert(hello);
+    }
+
+    function send_hello() {
+        secure_pubnub.publish({
+            channel : 'my_channel',
+            message : 'hello!'
+        });
+    }
+})();</script>
 ```
 
 ## HISTORY AND HERE-NOW EXAMPLE
@@ -227,6 +348,37 @@ function start_replay() {
 })();</script>
 ```
 
+## PRESENCE
+
+PubNub Network offers Channel Presence which
+allows you to ask the question "Who's There?"
+and get back an answer with list of users and the occupancy count.
+
+```html
+<div id=pubnub pub-key=demo sub-key=demo></div>
+<script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
+<script>(function(){
+    PUBNUB.subscribe({
+        channel    : "hello_world",                        // CONNECT TO THIS CHANNEL.
+        message    : function( message, env, channel ) {}, // RECEIVED A MESSAGE.
+        presence   : function( message, env, channel ) {   // PRESENCE
+            console.log( "Channel: ",            channel           );
+            console.log( "Join/Leave/Timeout: ", message.action    );
+            console.log( "Occupancy: ",          message.occupancy );
+            console.log( "User ID: ",            message.uuid      );
+            /* message is = {
+                    "action"    : "join",
+                    "timestamp" : 1347946204,
+                    "uuid"      : "6e08b25f-48c0-4e94-92d0-0778a8b6013d",
+                    "occupancy" : 1
+            } */
+        }
+        
+    })
+})();
+</script>
+```
+
 ## WebSocket Client Interface
 
 Optionally PubNub offers you the full RFC 6455
@@ -262,9 +414,8 @@ The following example opens a `new WebSocket` in
 <!-- Use WebSocket Constructor for a New Socket Connection -->
 <script>(function() {
 
-    "use strict"
-
     /* 'wss://ORIGIN/PUBLISH_KEY/SUBSCRIBE_KEY/CHANNEL' */
+    WebSocket  = PUBNUB.ws;
     var socket = new WebSocket('wss://pubsub.pubnub.com/demo/demo/my_channel')
 
     // On Message Receive
@@ -351,43 +502,6 @@ To do this, simply follow this `init` example:
 
 >**NOTE:** You do not need to use the `<div id=pubnub>` DIV with this method!
 
-## Using with AES256 Encryption
-
-This client now supports AES256 encryption out of the box!
-And its super-easy to use! Check out the
-file `encrypted_chat_demo.html` for a working example of
-using encryption between JavaScript and other PubNub clients.
-
-##### Important Highlights
-
-Be sure to include the following JavaScript Files:
-1. pubnub.js, 
-2. gibberish, and 
-3. encryption adapter:
-
-```html
-<script src="http://cdn.pubnub.com/pubnub-3.4.2.min.js"></script>
-<script src="crypto/gibberish-aes.js"></script>
-<script src="crypto/encrypt-pubnub.js"></script>
-```
-
-2. When instantiating your PubNub instance object,
-use the .secure method instead of the .init method:
-
-```javascript
-var cipher_key = "enigma";
-var secure_pubnub = PUBNUB.secure({
-    publish_key   : "demo",
-    subscribe_key : "demo",
-    cipher_key    : cipher_key
-});
-```
-
-That's pretty much it.
-Use subscribe, publish, and history as you would normally,
-only the implementation is different,
-being that the message traffic is now encrypted.
-
 ## SUPER ADVANCED SETTINGS
 
 #### WINDOWING AND MESSAGE ORDERING
@@ -421,7 +535,7 @@ var pubnub = PUBNUB.init({
 
 Windowing is a good idea! Please use it for improved network efficiency.
 
-#### KEEPALIVE
+#### KEEPALIVE PING INTERVAL
 
 >**NOTE:** The JavaScript library will automatically detect disconnects
 in near real-time regardless of `keepalaive`.
