@@ -1,13 +1,13 @@
 include ../Makefile.inc
-VERSION=3.4.2
-TOPOUT=pubnub-$(VERSION).js
-MINOUT=pubnub-$(VERSION).min.js
+PUBNUB_JS=pubnub.js
+PUBNUB_WEB_JS=pubnub-web.js
+PUBNUB_MIN_JS=pubnub.min.js
 JSON_JS=$(CORE_DIR)/json.js
-CORE_JS=$(CORE_DIR)/pubnub.js
+COMMON_JS=$(CORE_DIR)/pubnub-common.js
 WEBSOCKET_JS=$(CORE_DIR)/websocket.js
 PUBNUB_JS=pubnub.js
 PUBNUB_MIN_JS=pubnub.min.js
-OUTPUT_FILES=$(TOPOUT) $(MINOUT) $(PUBNUB_JS) $(PUBNUB_MIN_JS)
+OUTPUT_FILES=$(PUBNUB_JS) $(PUBNUB_MIN_JS)
 
 .PHONY	: all
 all: build
@@ -15,24 +15,19 @@ all: build
 .PHONY	: build
 build: $(PUBNUB_JS) $(PUBNUB_MIN_JS)
 
-$(TOPOUT) : $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS)
+$(PUBNUB_JS) : $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS)
 	echo $(ECHO)
-	$(ECHO) -n "// " > $(TOPOUT)
-	$(ECHO) $(VERSION) >> $(TOPOUT)
-	cat $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS) >> $(TOPOUT)
+	$(ECHO) -n "// " > $(PUBNUB_JS)
+	$(ECHO) $(VERSION) >> $(PUBNUB_JS)
+	cat $(JSON_JS) $(COMMON_JS) $(PUBNUB_WEB_JS) $(WEBSOCKET_JS) >> $(PUBNUB_JS)
 
-$(MINOUT) : $(TOPOUT)
-	$(ECHO) -n "// " >> $(MINOUT)
-	$(ECHO) $(VERSION) >> $(MINOUT)
-	$(ECHO) "(function(){" >> $(MINOUT)
-	java -jar $(GOOGLE_MINIFY) --js=$(TOPOUT) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(MINOUT)
-	$(ECHO) "})();" >> $(MINOUT)
+$(PUBNUB_MIN_JS) : $(PUBNUB_JS)
+	$(ECHO) -n "// " > $(PUBNUB_MIN_JS)
+	$(ECHO) $(VERSION) >> $(PUBNUB_MIN_JS)
+	$(ECHO) "(function(){" >> $(PUBNUB_MIN_JS)
+	java -jar $(GOOGLE_MINIFY) --js=$(PUBNUB_JS) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(PUBNUB_MIN_JS)
+	$(ECHO) "})();" >> $(PUBNUB_MIN_JS)
 
-$(PUBNUB_JS) : $(TOPOUT)
-	cp $(TOPOUT) $(PUBNUB_JS)
-
-$(PUBNUB_MIN_JS): $(MINOUT)
-	cp $(MINOUT) $(PUBNUB_MIN_JS)
 
 .PHONY	: clean
 clean:
