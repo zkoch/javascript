@@ -1,4 +1,5 @@
 include ../Makefile.inc
+VERSION=3.4.2
 TOPOUT=pubnub-$(VERSION).js
 MINOUT=pubnub-$(VERSION).min.js
 JSON_JS=$(CORE_DIR)/json.js
@@ -17,11 +18,12 @@ build: $(PUBNUB_JS) $(PUBNUB_MIN_JS)
 $(TOPOUT) : $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS)
 	echo $(ECHO)
 	$(ECHO) -n "// " > $(TOPOUT)
-	$(ECHO) -n $(VERSION) >> $(TOPOUT)
+	$(ECHO) $(VERSION) >> $(TOPOUT)
 	cat $(JSON_JS) $(CORE_JS) $(WEBSOCKET_JS) >> $(TOPOUT)
 
 $(MINOUT) : $(TOPOUT)
 	$(ECHO) -n "// " >> $(MINOUT)
+	$(ECHO) $(VERSION) >> $(MINOUT)
 	$(ECHO) "(function(){" >> $(MINOUT)
 	java -jar $(GOOGLE_MINIFY) --js=$(TOPOUT) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(MINOUT)
 	$(ECHO) "})();" >> $(MINOUT)
