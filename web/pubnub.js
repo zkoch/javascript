@@ -500,6 +500,7 @@ function ajax( setup ) {
         if (setup.data) {
             var params = [];
             var key;
+            console.log(setup.data);
             url += "?";
             for (key in setup.data) params.push(key+"="+setup.data[key]);
             url += params.join(PARAMSBIT);
@@ -568,10 +569,6 @@ var PDIV          = $('pubnub') || 0
         each_channel(function(ch){ SELF['LEAVE']( ch.name, 1 ) });
         return true;
     } );
-
-   
-    timeout( SELF['poll_online'],  SECOND    );
-    timeout( SELF['poll_online2'], KEEPALIVE );
 
     bind( 'offline', window,   SELF['_reset_offline'] );
    	bind( 'offline', document, SELF['_reset_offline'] );

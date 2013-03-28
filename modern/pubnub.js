@@ -141,7 +141,41 @@ function xdr( setup ) {
     return done;
 }
 
+/**
+ * BIND
+ * ====
+ * bind( 'keydown', search('a')[0], function(element) {
+ *     ...
+ * } );
+ */
+function bind( type, el, fun ) {
+    each( type.split(','), function(etype) {
+        var rapfun = function(e) {
+            if (!e) e = window.event;
+            if (!fun(e)) {
+                e.cancelBubble = true;
+                e.returnValue  = false;
+                e.preventDefault && e.preventDefault();
+                e.stopPropagation && e.stopPropagation();
+            }
+        };
 
+        if ( el.addEventListener ) el.addEventListener( etype, rapfun, false );
+        else if ( el.attachEvent ) el.attachEvent( 'on' + etype, rapfun );
+        else  el[ 'on' + etype ] = rapfun;
+    } );
+}
+
+/**
+ * UNBIND
+ * ======
+ * unbind( 'keydown', search('a')[0] );
+ */
+function unbind( type, el, fun ) {
+    if ( el.removeEventListener ) el.removeEventListener( type, false );
+    else if ( el.detachEvent ) el.detachEvent( 'on' + type, false );
+    else  el[ 'on' + type ] = null;
+}
 
 /**
  * LOG
@@ -190,6 +224,19 @@ function PN(setup) {
     var SELF = PN_API(setup);
 
     SELF['init'] = PN;
+
+    
+    // Return without Testing 
+    if (setup['notest']) return SELF;
+
+    // Add Leave Functions
+    bind( 'beforeunload', window, function() {
+        each_channel(function(ch){ SELF['LEAVE']( ch.name, 1 ) });
+        return true;
+    } );
+
+    bind( 'offline', window,   SELF['_reset_offline'] );
+    bind( 'offline', document, SELF['_reset_offline'] );
 
 	SELF['ready']();
     return SELF;

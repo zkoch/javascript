@@ -90,6 +90,7 @@
 
 	})
 	describe('#here_now()', function() {
+		this.timeout(80000);
 		it('should show occupancy 1 user if 1 user is subscribed to channel', function(done){
 			var ch = channel + '-' + 'here-now' ;
 				pubnub.subscribe({channel : ch , 

@@ -601,14 +601,17 @@ function PN_API(setup) {
             ,   err      = args['error']    || function(){}
             ,   channel  = args['channel']
             ,   jsonp    = jsonp_cb()
-            ,   data     = {};
+            ,   data     = null;
 
             // Make sure we have a Channel
             if (!channel)       return error('Missing Channel');
             if (!callback)      return error('Missing Callback');
             if (!SUBSCRIBE_KEY) return error('Missing Subscribe Key');
             
-            if (jsonp != '0') data['callback'] = jsonp;
+            if (jsonp != '0') {
+                data = {};
+                data['callback'] = jsonp;
+            }
 
             xdr({
                 callback : jsonp,
@@ -648,6 +651,10 @@ function PN_API(setup) {
     };
     if (!UUID) UUID = SELF['uuid']();
     db['set']( SUBSCRIBE_KEY + 'uuid', UUID );
+
+    timeout( SELF['poll_online'],  SECOND    );
+    timeout( SELF['poll_online2'], KEEPALIVE );
+
     return SELF;
 }/* ---------------------------------------------------------------------------
 WAIT! - This file depends on instructions from the PUBNUB Cloud.
