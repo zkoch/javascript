@@ -513,41 +513,7 @@ function generate_channel_list(channels) {
     return list.sort();
 }
 
-/* =-====================================================================-= */
-/* =-====================================================================-= */
-/* =-=========================     PUBNUB     ===========================-= */
-/* =-====================================================================-= */
-/* =-====================================================================-= */
-
-var PDIV          = $('pubnub') || 0
-,   READY         = 0
-,   READY_BUFFER  = []
-,   CREATE_PUBNUB = function(setup) {
-
-    // Force JSONP if requested from user.
-    if (setup['jsonp']) XORIGN = 0;
-
-    var CHANNELS      = {}
-    ,   PUB_QUEUE     = []
-    ,   SUB_CALLBACK  = 0
-    ,   SUB_CHANNEL   = 0
-    ,   SUB_RECEIVER  = 0
-    ,   SUB_RESTORE   = 0
-    ,   SUB_BUFF_WAIT = 0
-    ,   TIMETOKEN     = 0
-    ,   SUB_WINDOWING =  +setup['windowing']   || DEF_WINDOWING
-    ,   SUB_TIMEOUT   = (+setup['timeout']     || DEF_SUB_TIMEOUT) * SECOND
-    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
-    ,   PUBLISH_KEY   = setup['publish_key']   || ''
-    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
-    ,   SSL           = setup['ssl'] ? 's' : ''
-    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || ''
-    ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
-    ,   STD_ORIGIN    = nextorigin(ORIGIN)
-    ,   SUB_ORIGIN    = nextorigin(ORIGIN)
-    ,   LEAVE         = function(){}
-    ,   CONNECT       = function(){}
-    ,   SELF          = {
+PN_API = {
         /*
             PUBNUB.history({
                 channel  : 'my_chat_channel',
@@ -935,7 +901,44 @@ var PDIV          = $('pubnub') || 0
                     'channel', encode(channel)
                 ]
             });
-        },
+        }
+    };
+
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+/* =-=========================     PUBNUB     ===========================-= */
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+
+var PDIV          = $('pubnub') || 0
+,   READY         = 0
+,   READY_BUFFER  = []
+,   CREATE_PUBNUB = function(setup) {
+
+    // Force JSONP if requested from user.
+    if (setup['jsonp']) XORIGN = 0;
+
+    var CHANNELS      = {}
+    ,   PUB_QUEUE     = []
+    ,   SUB_CALLBACK  = 0
+    ,   SUB_CHANNEL   = 0
+    ,   SUB_RECEIVER  = 0
+    ,   SUB_RESTORE   = 0
+    ,   SUB_BUFF_WAIT = 0
+    ,   TIMETOKEN     = 0
+    ,   SUB_WINDOWING =  +setup['windowing']   || DEF_WINDOWING
+    ,   SUB_TIMEOUT   = (+setup['timeout']     || DEF_SUB_TIMEOUT) * SECOND
+    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
+    ,   PUBLISH_KEY   = setup['publish_key']   || ''
+    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
+    ,   SSL           = setup['ssl'] ? 's' : ''
+    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || ''
+    ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
+    ,   STD_ORIGIN    = nextorigin(ORIGIN)
+    ,   SUB_ORIGIN    = nextorigin(ORIGIN)
+    ,   LEAVE         = function(){}
+    ,   CONNECT       = function(){}
+    ,   SELF          = PN_API,
 
         // Expose PUBNUB Functions
         'xdr'      : xdr,

@@ -350,17 +350,7 @@ function create(element) { return document.createElement(element) }
  */
 function jsonp_cb() { return XORIGN || FDomainRequest() ? 0 : unique() }
 
-/**
- * ENCODE
- * ======
- * var encoded_path = encode('path');
- */
-function encode(path) {
-    return map( (encodeURIComponent(path)).split(''), function(chr) {
-        return "-_.!~*'()".indexOf(chr) < 0 ? chr :
-               "%"+chr.charCodeAt(0).toString(16).toUpperCase()
-    } ).join('');
-}
+
 
 /**
  * EVENTS
@@ -549,9 +539,7 @@ var PDIV          = $('pubnub') || 0
     // Force JSONP if requested from user.
     if (setup['jsonp']) XORIGN = 0;
 
-    var LEAVE         = function(){}
-    ,   CONNECT       = function(){}
-    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
+    var SUBSCRIBE_KEY = setup['subscribe_key'] || ''
     ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
     ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || '';
 
@@ -560,8 +548,8 @@ var PDIV          = $('pubnub') || 0
     setup['_is_online'] = _is_online;
     setup['jsonp_cb']   = jsonp_cb;
     var   SELF          =  PN_API(setup);
-    //console.log(typeof PN_API === 'function');
-    //console.log(typeof supplant === 'function');
+
+
     SELF['css']  = css;
     SELF['$']    = $;
     SELF['create'] = create;
@@ -572,24 +560,21 @@ var PDIV          = $('pubnub') || 0
     SELF['events'] = events;
     SELF['init'] = CREATE_PUBNUB;
 
-    if (!UUID) UUID = SELF.uuid();
-    db['set']( SUBSCRIBE_KEY + 'uuid', UUID );
-
     // Return without Testing 
     if (setup['notest']) return SELF;
 
     // Add Leave Functions
     bind( 'beforeunload', window, function() {
-        each_channel(function(ch){ LEAVE( ch.name, 1 ) });
+        each_channel(function(ch){ SELF['LEAVE']( ch.name, 1 ) });
         return true;
     } );
 
    
-    timeout( _poll_online,  SECOND    );
-    timeout( _poll_online2, KEEPALIVE );
+    timeout( SELF['poll_online'],  SECOND    );
+    timeout( SELF['poll_online2'], KEEPALIVE );
 
-    //bind( 'offline', window,   _reset_offline );
-    //bind( 'offline', document, _reset_offline );
+    bind( 'offline', window,   SELF['_reset_offline'] );
+   	bind( 'offline', document, SELF['_reset_offline'] );
 
     // Return PUBNUB Socket Object
     return SELF;

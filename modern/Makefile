@@ -1,5 +1,5 @@
 include ../Makefile.inc
-PUBNUB_WEB_JS=pubnub.js
+PUBNUB_MODERN_JS=pubnub.js
 PUBNUB_MIN_JS=pubnub.min.js
 PUBNUB_CRYPTO_MIN_JS=pubnub-crypto.min.js
 JSON_JS=$(CORE_DIR)/json.js
@@ -16,11 +16,12 @@ all: build
 .PHONY	: build
 build: $(PUBNUB_MIN_JS) $(PUBNUB_CRYPTO_MIN_JS)
 
-$(PUBNUB_MIN_JS) : $(JSON_JS) $(COMMON_JS) $(WEBSOCKET_JS) $(PUBNUB_WEB_JS)
+$(PUBNUB_MIN_JS) : $(JSON_JS) $(COMMON_JS) $(PUBNUB_MODERN_JS)
 	$(ECHO) -n "// " > $(PUBNUB_MIN_JS)
 	$(ECHO) $(VERSION) >> $(PUBNUB_MIN_JS)
 	$(ECHO) "(function(){" >> $(PUBNUB_MIN_JS)
-	cat $(JSON_JS) $(COMMON_JS) $(PUBNUB_WEB_JS) $(WEBSOCKET_JS) | java -jar $(GOOGLE_MINIFY) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(PUBNUB_MIN_JS)
+	cat $(JSON_JS) $(COMMON_JS) $(PUBNUB_MODERN_JS)  >> $(PUBNUB_MIN_JS)
+	#cat $(JSON_JS) $(COMMON_JS) $(PUBNUB_WEB_JS) $(WEBSOCKET_JS) | java -jar $(GOOGLE_MINIFY) --compilation_level=ADVANCED_OPTIMIZATIONS >> $(PUBNUB_MIN_JS)
 	$(ECHO) "})();" >> $(PUBNUB_MIN_JS)
 
 $(PUBNUB_CRYPTO_MIN_JS) : $(GIBBERISH_JS) $(ENCRYPTO_JS)

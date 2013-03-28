@@ -155,17 +155,6 @@ function generate_channel_list(channels) {
     return list.sort();
 }
 
-function _poll_online() {
-    _is_online() || _reset_offline();
-    timeout( _poll_online, SECOND );
-}
-function _poll_online2() {
-    SELF['time'](function(success){
-    success || _reset_offline();
-    timeout( _poll_online2, KEEPALIVE );
-    });
-}
-
 // PUBNUB READY TO CONNECT
     function ready() { timeout( function() {
         if (READY) return;
@@ -183,7 +172,6 @@ function PN_API(setup) {
     ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
     ,   STD_ORIGIN    = nextorigin(ORIGIN)
     ,   SUB_ORIGIN    = nextorigin(ORIGIN)
-    ,   LEAVE         = function(){}
     ,   CONNECT       = function(){}
     ,   PUB_QUEUE     = []
     ,   SUB_CALLBACK  = 0
@@ -195,9 +183,9 @@ function PN_API(setup) {
     ,   CHANNELS      = {}
     ,   xdr           = setup['xdr']
     ,   _is_online    = setup['_is_online'] || function() {}
-    ,   jsonp_cb      = setup['jsonp_cb'] || function() {}
-    ,   db            = setup['db']
-    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || '';
+    ,   jsonp_cb      = setup['jsonp_cb'] || function(){ return 0;}
+    ,   db            = setup['db'] || {'get': function(){}, 'set': function(){}}
+    ,   UUID          = setup['uuid'] || ( db && db['get'](SUBSCRIBE_KEY+'uuid') || '');
 
     
 
@@ -208,16 +196,6 @@ function PN_API(setup) {
         xdr(PUB_QUEUE.shift());
     }
 
-    function _reset_offline() {
-        SUB_RECEIVER && SUB_RECEIVER(1);
-    }
-
-    
-
-
-    timeout( _poll_online,  SECOND    );
-    timeout( _poll_online2, KEEPALIVE );
-
     function each_channel(callback) {
         each( generate_channel_list(CHANNELS), function(channel) {
             var chan = CHANNELS[channel];
@@ -227,29 +205,35 @@ function PN_API(setup) {
     }
 
     // Announce Leave Event
-    LEAVE = function( channel, blocking ) {
-        var data   = { 'uuid' : UUID }
-        ,   origin = nextorigin(ORIGIN)
-        ,   jsonp  = jsonp_cb();
 
-        // Prevent Leaving a Presence Channel
-        if (channel.indexOf(PRESENCE_SUFFIX) > 0) return;
-
-        if (jsonp != '0') data['callback'] = jsonp;
-
-        xdr({
-            blocking : blocking || SSL,
-            timeout  : 2000,
-            callback : jsonp,
-            data     : data,
-            url      : [
-                origin, 'v2', 'presence', 'sub_key',
-                SUBSCRIBE_KEY, 'channel', encode(channel), 'leave'
-            ]
-        });
-    };
     
-    var SELF = {
+        var SELF = {
+
+        '_reset_offline' : function() {
+            SUB_RECEIVER && SUB_RECEIVER(1);
+        },
+
+        'LEAVE' : function( channel, blocking ) {
+            var data   = { 'uuid' : UUID }
+            ,   origin = nextorigin(ORIGIN)
+            ,   jsonp  = jsonp_cb();
+
+            // Prevent Leaving a Presence Channel
+            if (channel.indexOf(PRESENCE_SUFFIX) > 0) return;
+
+            if (jsonp != '0') data['callback'] = jsonp;
+
+            xdr({
+                blocking : blocking || SSL,
+                timeout  : 2000,
+                callback : jsonp,
+                data     : data,
+                url      : [
+                    origin, 'v2', 'presence', 'sub_key',
+                    SUBSCRIBE_KEY, 'channel', encode(channel), 'leave'
+                ]
+            });
+        },
         /*
             PUBNUB.history({
                 channel  : 'my_chat_channel',
@@ -419,7 +403,7 @@ function PN_API(setup) {
 
             // Iterate over Channels
             each( channel.split(','), function(channel) {
-                if (READY) LEAVE( channel, 0 );
+                if (READY) SELF['LEAVE']( channel, 0 );
                 CHANNELS[channel] = 0;
             } );
 
@@ -598,7 +582,7 @@ function PN_API(setup) {
 
             CONNECT = function() {
                 // Close Previous Subscribe Connection
-                _reset_offline();
+                SELF['_reset_offline']();
 
                 // Begin Recursive Subscribe
                 clearTimeout(SUB_BUFF_WAIT);
@@ -640,27 +624,29 @@ function PN_API(setup) {
         },
 
         // Expose PUBNUB Functions
-        'xdr'      : xdr,
-        'ready'    : ready,
-        'db'       : db,
-        'uuid'     : uuid,
-        'each'     : each,
-        'map'      : map,
-        'grep'     : grep,
-        'supplant' : supplant,
-        'now'      : rnow,
-        'unique'   : unique,
-        'updater'  : updater
+        'xdr'           : xdr,
+        'ready'         : ready,
+        'db'            : db,
+        'uuid'          : uuid,
+        'each'          : each,
+        'map'           : map,
+        'grep'          : grep,
+        'supplant'      : supplant,
+        'now'           : rnow,
+        'unique'        : unique,
+        'updater'       : updater,
+        'poll_online'   : function() {
+            _is_online() || SELF['_reset_offline']();
+            timeout( SELF['poll_online'], SECOND );
+        },
+        'poll_online2'  : function() {
+            SELF['time'](function(success){
+            success || SELF['_reset_offline']();
+            timeout( SELF['poll_online2'], KEEPALIVE );
+            })
+        }
     };
-    function _poll_online() {
-        _is_online() || _reset_offline();
-        timeout( _poll_online, SECOND );
-    }
-    function _poll_online2() {
-        SELF['time'](function(success){
-        success || _reset_offline();
-        timeout( _poll_online2, KEEPALIVE );
-    });
-}
+    if (!UUID) UUID = SELF['uuid']();
+    db['set']( SUBSCRIBE_KEY + 'uuid', UUID );
     return SELF;
 }

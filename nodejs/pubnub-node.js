@@ -154,7 +154,7 @@ exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
     setup['timeout'] = 1000;
-    PN.__proto__ = PN_API(setup);    
+    PN = PN_API(setup);    
     PN.ready();
     return PN;
 }
