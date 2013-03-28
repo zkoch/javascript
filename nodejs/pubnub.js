@@ -719,7 +719,6 @@ function log(message) { console['log'](message) }
  */
 function xdr( setup ) {
     //setup.url.unshift('');
-	//console.log(setup);
     var url     = setup.url.join(URLBIT)
     ,   request    
     ,   response
@@ -767,7 +766,6 @@ function xdr( setup ) {
         }
         url += params.join(PARAMSBIT);
     }
-	//console.log(url);
     var options = {
         hostname : origin,
         port : ssl ? 443 : 80,
