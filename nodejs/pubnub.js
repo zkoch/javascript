@@ -810,7 +810,7 @@ var db = (function(){
     var store = {};
     return {
         'get' : function(key) {
-            return store['key'];
+            return store[key];
         },
         'set' : function( key, value ) {
             db[key] = value;
