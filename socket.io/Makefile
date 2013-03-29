@@ -1,7 +1,6 @@
 
 include ../Makefile.inc
 
-CRYPTO_DIR=$(CORE_DIR)/crypto
 WEB_DIR=$(REPOS_DIR)/web
 
 PUBNUB_MIN_JS=$(WEB_DIR)/pubnub.min.js
