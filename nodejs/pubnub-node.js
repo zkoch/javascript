@@ -142,7 +142,20 @@ function xdr( setup ) {
     return done;
 }
 
-
+/**
+ * LOCAL STORAGE
+ */
+var db = (function(){
+    var store = {};
+    return {
+        'get' : function(key) {
+            return store['key'];
+        },
+        'set' : function( key, value ) {
+            db[key] = value;
+        }
+    };
+})();
 
 /* =-=====================================================================-= */
 /* =-=====================================================================-= */
@@ -153,6 +166,7 @@ function xdr( setup ) {
 exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
+    setup['db'] = db;
     PN = PN_API(setup);    
     PN.ready();
     return PN;

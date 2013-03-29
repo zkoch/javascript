@@ -433,6 +433,8 @@ function PN_API(setup) {
             // Restore Enabled?
             if (restore) SUB_RESTORE = 1;
 
+            TIMETOKEN = 0;
+
             // Make sure we have a Channel
             if (!channel)       return error('Missing Channel');
             if (!callback)      return error('Missing Callback');
@@ -551,7 +553,7 @@ function PN_API(setup) {
                                     db['get'](SUBSCRIBE_KEY) || messages[1];
 
                         // Update Saved Timetoken
-                        db['set']( SUBSCRIBE_KEY, messages[1] );
+                        if (TIMETOKEN) db['set']( SUBSCRIBE_KEY, messages[1] );
 
                         // Route Channel <---> Callback for Message
                         var next_callback = (function() {
