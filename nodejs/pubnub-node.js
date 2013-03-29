@@ -130,7 +130,7 @@ function xdr( setup ) {
                 if (chunk) body += chunk;
             } );
             response.on( 'end', function(){finished();});
-        }).on( 'error', function(){done(1)});
+        });
         request.end();
         request.timeout = xhrtme;
 
@@ -153,7 +153,6 @@ function xdr( setup ) {
 exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
-    setup['timeout'] = 1000;
     PN = PN_API(setup);    
     PN.ready();
     return PN;

@@ -182,8 +182,8 @@ function PN_API(setup) {
     ,   TIMETOKEN     = 0
     ,   CHANNELS      = {}
     ,   xdr           = setup['xdr']
-    ,   _is_online    = setup['_is_online'] || function() {}
-    ,   jsonp_cb      = setup['jsonp_cb'] || function(){ return 0;}
+    ,   _is_online    = setup['_is_online'] || function() { return 1; }
+    ,   jsonp_cb      = setup['jsonp_cb'] || function(){ return 0; }
     ,   db            = setup['db'] || {'get': function(){}, 'set': function(){}}
     ,   UUID          = setup['uuid'] || ( db && db['get'](SUBSCRIBE_KEY+'uuid') || '');
 
@@ -656,7 +656,8 @@ function PN_API(setup) {
     timeout( SELF['poll_online2'], KEEPALIVE );
 
     return SELF;
-}/* ---------------------------------------------------------------------------
+}
+/* ---------------------------------------------------------------------------
 WAIT! - This file depends on instructions from the PUBNUB Cloud.
 http://www.pubnub.com/account
 --------------------------------------------------------------------------- */
@@ -788,7 +789,7 @@ function xdr( setup ) {
                 if (chunk) body += chunk;
             } );
             response.on( 'end', function(){finished();});
-        }).on( 'error', function(){done(1)});
+        });
         request.end();
         request.timeout = xhrtme;
 
@@ -811,7 +812,6 @@ function xdr( setup ) {
 exports.init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
-    setup['timeout'] = 1000;
     PN = PN_API(setup);    
     PN.ready();
     return PN;
