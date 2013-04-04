@@ -29,16 +29,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 --------------------------------------------------------------------------- */
-window['PUBNUB'] || (function(){
+
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+/* =-=========================     UTIL     =============================-= */
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+
+window['PUBNUB'] || (function() {
 
 /**
  * UTIL LOCALS
  */
-var ASYNC           = 'async'
+
+var SWF           = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
+,   ASYNC           = 'async'
 ,   URLBIT          = '/'
 ,   PARAMSBIT       = '&'
-,   DEF_TIMEOUT     = 10000
-,   SWF             = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
 ,   UA              = navigator.userAgent
 ,   XORIGN          = UA.indexOf('MSIE 6') == -1;
 
@@ -51,6 +58,7 @@ console.log    || (
     console.error =
     ((window.opera||{}).postError||function(){})
 );
+
 
 
 /**
@@ -79,7 +87,6 @@ var db = (function(){
 })();
 
 
-
 /**
  * $
  * =
@@ -93,8 +100,6 @@ function $(id) { return document.getElementById(id) }
  * error('message');
  */
 function error(message) { console['error'](message) }
-
-
 
 /**
  * SEARCH
@@ -110,6 +115,7 @@ function search( elements, start ) {
     } );
     return list;
 }
+
 
 
 /**
@@ -187,7 +193,6 @@ function css( element, styles ) {
 function create(element) { return document.createElement(element) }
 
 
-
 /**
  * jsonp_cb
  * ========
@@ -197,7 +202,31 @@ function jsonp_cb() { return XORIGN || FDomainRequest() ? 0 : unique() }
 
 
 
-
+/**
+ * EVENTS
+ * ======
+ * PUBNUB.events.bind( 'you-stepped-on-flower', function(message) {
+ *     // Do Stuff with message
+ * } );
+ *
+ * PUBNUB.events.fire( 'you-stepped-on-flower', "message-data" );
+ * PUBNUB.events.fire( 'you-stepped-on-flower', {message:"data"} );
+ * PUBNUB.events.fire( 'you-stepped-on-flower', [1,2,3] );
+ *
+ */
+var events = {
+    'list'   : {},
+    'unbind' : function( name ) { events.list[name] = [] },
+    'bind'   : function( name, fun ) {
+        (events.list[name] = events.list[name] || []).push(fun);
+    },
+    'fire' : function( name, data ) {
+        each(
+            events.list[name] || [],
+            function(fun) { fun(data) }
+        );
+    }
+};
 
 /**
  * XDR Cross Domain Request
@@ -252,7 +281,7 @@ function xdr( setup ) {
     if (setup.data) {
         var params = [];
         script.src += "?";
-        for (key in setup.data) {
+        for (var key in setup.data) {
              params.push(key+"="+setup.data[key]);
         }
         script.src += params.join(PARAMSBIT);
@@ -316,11 +345,12 @@ function ajax( setup ) {
         xhr.onerror = xhr.onabort   = function(){ done(1) };
         xhr.onload  = xhr.onloadend = finished;
         xhr.timeout = xhrtme;
-        
+
         var url = setup.url.join(URLBIT);
         if (setup.data) {
             var params = [];
             var key;
+            console.log(setup.data);
             url += "?";
             for (key in setup.data) params.push(key+"="+setup.data[key]);
             url += params.join(PARAMSBIT);
@@ -340,67 +370,91 @@ function ajax( setup ) {
 }
 
 
+
+ // Test Connection State
+function _is_online() {
+    if (!('onLine' in navigator)) return 1;
+    return navigator['onLine'];
+}
+
+
 /* =-====================================================================-= */
 /* =-====================================================================-= */
 /* =-=========================     PUBNUB     ===========================-= */
 /* =-====================================================================-= */
 /* =-====================================================================-= */
 
-var PDIV          = $('pubnub') || {}
+var PDIV          = $('pubnub') || 0
 ,   CREATE_PUBNUB = function(setup) {
-    var TIMETOKEN     = 0
-    ,   PUBLISH_KEY   = setup['publish_key']   || ''
-    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
-    ,   SSL           = setup['ssl'] ? 's' : ''
-    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || ''
-    ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
-    ,   LEAVE         = function(){}
-    ,   CONNECT       = function(){}
-    ,   SELF          = {
-        // Expose PUBNUB Functions
-        'xdr'      : xdr,
-        'db'       : db,
-        'each'     : each,
-        'map'      : map,
-        'grep'     : grep,
-        'css'      : css,
-        '$'        : $,
-        'create'   : create,
-        'bind'     : bind,
-        'supplant' : supplant,
-        'head'     : head,
-        'search'   : search,
-        'attr'     : attr,
-        'now'      : rnow,
-        'unique'   : unique,
-        'events'   : events,
-        'updater'  : updater,
-        'init'     : CREATE_PUBNUB
-    };
 
-    setup['xdr'] = xdr;
-    setup['db'] = db;
-    setup['jsonp_cb'] = jsonp_cb;
-    setup['bind_leave'] = function() {   
-        // Add Leave Functions
-        bind( 'beforeunload', window, function() {
-            each_channel(function(ch){ LEAVE( ch.name, 1 ) });
-            return true;
-    } );};
+    // Force JSONP if requested from user.
+    if (setup['jsonp']) XORIGN = 0;
 
-    SELF.__proto__= PN_API(setup);
+    var SUBSCRIBE_KEY = setup['subscribe_key'] || ''
+    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
+    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || '';
+
+    setup['xdr']        = xdr;
+    setup['db']         = db;
+    setup['_is_online'] = _is_online;
+    setup['jsonp_cb']   = jsonp_cb;
+    var   SELF          = PN_API(setup);
+
+
+    SELF['css']  = css;
+    SELF['$']    = $;
+    SELF['create'] = create;
+    SELF['bind'] = bind;
+    SELF['head']  = head;
+    SELF['search'] = search;
+    SELF['attr'] = attr;
+    SELF['events'] = events;
+    SELF['init'] = CREATE_PUBNUB;
+
+    // Return without Testing 
+    if (setup['notest']) return SELF;
+
+    // Add Leave Functions
+    bind( 'beforeunload', window, function() {
+        each_channel(function(ch){ SELF['LEAVE']( ch.name, 1 ) });
+        return true;
+    } );
+
+    bind( 'offline', window,   SELF['_reset_offline'] );
+   	bind( 'offline', document, SELF['_reset_offline'] );
+
+    // Return PUBNUB Socket Object
     return SELF;
 };
 
+
+
+// Bind for PUBNUB Readiness to Subscribe
+bind( 'load', window, function(){ timeout( ready, 0 ) } );
+
+var pdiv = PDIV || {};
+
 // CREATE A PUBNUB GLOBAL OBJECT
 PUBNUB = CREATE_PUBNUB({
-    'publish_key'   : attr( PDIV, 'pub-key' ),
-    'subscribe_key' : attr( PDIV, 'sub-key' ),
+    'notest'        : 1,
+    'publish_key'   : attr( pdiv, 'pub-key' ),
+    'subscribe_key' : attr( pdiv, 'sub-key' ),
     'ssl'           : !document.location.href.indexOf('https') ||
-                      attr( PDIV, 'ssl' ) == 'on',
-    'origin'        : attr( PDIV, 'origin' ),
-    'uuid'          : attr( PDIV, 'uuid' )
+                      attr( pdiv, 'ssl' ) == 'on',
+    'origin'        : attr( pdiv, 'origin' ),
+    'uuid'          : attr( pdiv, 'uuid' )
 });
+
+// jQuery Interface
+window['jQuery'] && (window['jQuery']['PUBNUB'] = PUBNUB);
+
+// For Modern JS + Testling.js - http://testling.com/
+typeof(module) !== 'undefined' && (module['exports'] = PUBNUB) && ready();
+
+var pubnubs = $('pubnubs') || 0;
+
+// LEAVE NOW IF NO PDIV.
+if (!PDIV) return;
 
 // PUBNUB Flash Socket
 css( PDIV, { 'position' : 'absolute', 'top' : -SECOND } );
@@ -410,13 +464,6 @@ if ('opera' in window || attr( PDIV, 'flash' )) PDIV['innerHTML'] =
     '><param name=movie value=' + SWF +
     '><param name=allowscriptaccess value=always></object>';
 
-var pubnubs = $('pubnubs') || {};
-
-
-
-// Bind for PUBNUB Readiness to Subscribe
-bind( 'load', window, function(){ timeout( PUBNUB['ready'](), 0 ) } );
-
 // Create Interface for Opera Flash
 PUBNUB['rdx'] = function( id, data ) {
     if (!data) return FDomainRequest[id]['onerror']();
@@ -425,7 +472,7 @@ PUBNUB['rdx'] = function( id, data ) {
 };
 
 function FDomainRequest() {
-    if (!pubnubs['get']) return 0;
+    if (!pubnubs || !pubnubs['get']) return 0;
 
     var fdomainrequest = {
         'id'    : FDomainRequest['id']++,
@@ -441,11 +488,4 @@ function FDomainRequest() {
 }
 FDomainRequest['id'] = SECOND;
 
-// jQuery Interface
-window['jQuery'] && (window['jQuery']['PUBNUB'] = PUBNUB);
-
-// For Modern JS + Testling.js - http://testling.com/
-//typeof exports !== 'undefined' && (exports.PUBNUB = PUBNUB) && PUBNUB.ready();
-
-typeof(module) !== 'undefined' && (module['exports'] = PUBNUB) && ready();
 })();
