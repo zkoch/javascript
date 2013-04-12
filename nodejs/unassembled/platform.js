@@ -32,14 +32,14 @@ THE SOFTWARE.
 /**
  * UTIL LOCALS
  */
-var NOW    = 1
-,   http   = require('http')
-,   https  = require('https')
-,   XHRTME = 310000
+var NOW             = 1
+,   http            = require('http')
+,   https           = require('https')
+,   XHRTME          = 310000
 ,   DEF_TIMEOUT     = 10000
 ,   SECOND          = 1000
-,	PNSDK			= 'PubNub-JS-' + PLATFORM + '/' +  VERSION
-,   XORIGN = 1;
+,   PNSDK           = 'PubNub-JS-' + PLATFORM + '/' +  VERSION
+,   XORIGN          = 1;
 
 
 /**
@@ -59,7 +59,7 @@ function error(message) { console['error'](message) }
  *  });
  */
 function xdr( setup ) {
-    var request    
+    var request
     ,   response
     ,   success  = setup.success || function(){}
     ,   fail     = setup.fail    || function(){}
@@ -75,7 +75,7 @@ function xdr( setup ) {
             if (loaded) return;
                 loaded = 1;
 
-            clearTimeout(timer);    
+            clearTimeout(timer);
             try       { response = JSON['parse'](body); }
             catch (r) { return done(1); }
             success(response);
@@ -119,9 +119,9 @@ function xdr( setup ) {
         request.end();
         request.timeout = xhrtme;
 
-    } catch(e) { 
+    } catch(e) {
         done(0);
-        return xdr(setup); 
+        return xdr(setup);
     }
 
     return done;
@@ -153,7 +153,7 @@ exports.init = function(setup) {
     setup['xdr'] = xdr;
     setup['db'] = db;
     setup['error'] = error;
-    PN = PN_API(setup);    
+    PN = PN_API(setup);
     PN.ready();
     return PN;
 }

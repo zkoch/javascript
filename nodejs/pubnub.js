@@ -40,7 +40,7 @@ var nextorigin = (function() {
 /**
  * Build Url
  * =======
- * 
+ *
  */
 function build_url(url_components, url_params) {
     var url     = url_components.join(URLBIT);
@@ -53,7 +53,7 @@ function build_url(url_components, url_params) {
         }
         url += params.join(PARAMSBIT);
     }
-	return url;
+    return url;
 }
 
 /**
@@ -238,7 +238,7 @@ function PN_API(setup) {
 
             if (jsonp != '0') data['callback'] = jsonp;
 
-			
+
             xdr({
                 blocking : blocking || SSL,
                 timeout  : 2000,
@@ -258,7 +258,7 @@ function PN_API(setup) {
             });
         */
         'history' : function( args, callback ) {
-            var callback = args['callback'] || callback 
+            var callback = args['callback'] || callback
             ,   count    = args['count']    || args['limit'] || 100
             ,   reverse  = args['reverse']  || "false"
             ,   err      = args['error']    || function(){}
@@ -569,7 +569,7 @@ function PN_API(setup) {
                                     SUB_RESTORE              &&
                                     db['get'](SUBSCRIBE_KEY) || messages[1];
 
-                        
+
                         if (backfill) {
                             Timetoken = 10000;
                             backfill  = 0;
@@ -622,7 +622,7 @@ function PN_API(setup) {
         },
 
         'here_now' : function( args, callback ) {
-            var callback = args['callback'] || callback 
+            var callback = args['callback'] || callback
             ,   err      = args['error']    || function(){}
             ,   channel  = args['channel']
             ,   jsonp    = jsonp_cb()
@@ -632,7 +632,7 @@ function PN_API(setup) {
             if (!channel)       return error('Missing Channel');
             if (!callback)      return error('Missing Callback');
             if (!SUBSCRIBE_KEY) return error('Missing Subscribe Key');
-            
+
             if (jsonp != '0') {
                 data = {};
                 data['callback'] = jsonp;
@@ -645,7 +645,7 @@ function PN_API(setup) {
                 fail     : err,
                 url      : [
                     STD_ORIGIN, 'v2', 'presence',
-                    'sub_key', SUBSCRIBE_KEY, 
+                    'sub_key', SUBSCRIBE_KEY,
                     'channel', encode(channel)
                 ]
             });
@@ -723,14 +723,14 @@ THE SOFTWARE.
 /**
  * UTIL LOCALS
  */
-var NOW    = 1
-,   http   = require('http')
-,   https  = require('https')
-,   XHRTME = 310000
+var NOW             = 1
+,   http            = require('http')
+,   https           = require('https')
+,   XHRTME          = 310000
 ,   DEF_TIMEOUT     = 10000
 ,   SECOND          = 1000
-,	PNSDK			= 'PubNub-JS-' + 'Nodejs' + '/' +  '3.4.4'
-,   XORIGN = 1;
+,   PNSDK           = 'PubNub-JS-' + 'Nodejs' + '/' +  '3.4.4'
+,   XORIGN          = 1;
 
 
 /**
@@ -750,7 +750,7 @@ function error(message) { console['error'](message) }
  *  });
  */
 function xdr( setup ) {
-    var request    
+    var request
     ,   response
     ,   success  = setup.success || function(){}
     ,   fail     = setup.fail    || function(){}
@@ -766,7 +766,7 @@ function xdr( setup ) {
             if (loaded) return;
                 loaded = 1;
 
-            clearTimeout(timer);    
+            clearTimeout(timer);
             try       { response = JSON['parse'](body); }
             catch (r) { return done(1); }
             success(response);
@@ -810,9 +810,9 @@ function xdr( setup ) {
         request.end();
         request.timeout = xhrtme;
 
-    } catch(e) { 
+    } catch(e) {
         done(0);
-        return xdr(setup); 
+        return xdr(setup);
     }
 
     return done;
@@ -844,7 +844,7 @@ exports.init = function(setup) {
     setup['xdr'] = xdr;
     setup['db'] = db;
     setup['error'] = error;
-    PN = PN_API(setup);    
+    PN = PN_API(setup);
     PN.ready();
     return PN;
 }
