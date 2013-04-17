@@ -2,9 +2,9 @@
 [![browser support](http://ci.testling.com/devendram/javascript.png)](http://ci.testling.com/devendram/javascript)
 
 # YOU MUST HAVE A PUBNUB ACCOUNT TO USE THE API.
-http://www.pubnub.com/account
+Create an account at http://www.pubnub.com/account
 
-## The PubNub Network JavaScript v3.4.2 Real-time SDK
+## The PubNub Network JavaScript Real-time SDK v3.4.4
 http://www.pubnub.com - PubNub Real-time Push Service in the Cloud. 
 
 The PubNub Network is a blazingly fast Global Messaging Service for building
@@ -19,7 +19,7 @@ business collaborative solutions, and more.
 You may access the latest PubNub JavaScript SDK on The PubNub Network CDN.
 
 ```html
-<script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
+<script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>(function(){
     var pubnub = PUBNUB.init({
         publish_key   : 'demo',
@@ -36,6 +36,55 @@ https://github.com/pubnub/javascript#simple-example -
 See the simple working example.
 However if you want to learn the basic code for send/receive,
 see below here:
+
+## Initializing
+
+If you setup credentials using a div, for example:
+
+```html
+<div id=pubnub pub-key=demo sub-key=demo></div>
+```
+you access PubNub methods via PUBNUB class methods:
+
+```javascript
+PUBNUB.publish({
+    channel : "hello_world",
+    message : "Hi."
+})
+```
+
+If you setup credentials using the PUBNUB.init() method, for example:
+
+```javascript    
+var p = PUBNUB.init({publish_key : 'demo' , subscribe_key : 'demo'});
+```
+
+you access PubNub methods via ```p```'s instance methods:
+
+```javascript
+p.publish({
+        channel : "hello_world",
+        message : "Hi."
+    })
+```
+
+When working with any non-web JavaScript-based client (such as a mobile
+JS-based client, like PhoneGap, Titanium, etc), you MUST use this
+slightly-modified method of instantiation:
+
+```javascript
+var m = PUBNUB({publish_key : 'demo' , subscribe_key : 'demo'});
+// no explicit PUBNUB.init() method call!
+```
+
+and access PubNub methods via ```m```'s instance methods:
+    
+```javascript    
+m.publish({
+    channel : "hello_world",
+    message : "Hi."
+})
+```
 
 #### Basic Send
 ```javascript
@@ -83,7 +132,7 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 
 ```html
 <div id=pubnub pub-key=demo sub-key=demo></div>
-<script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
+<script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>
 
     // LISTEN
@@ -107,16 +156,16 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 ## ADVANCED SUBSCRIBE CONNECTIVITY OPTIONS/CALLBACKS
 ```html
 <div id=pubnub pub-key=demo sub-key=demo></div>
-<script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
+<script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>(function(){
     PUBNUB.subscribe({
-        channel    : "hello_world",        // CONNECT TO THIS CHANNEL.
-        restore    : false,                // FETCH MISSED MESSAGES ON PAGE CHANGES.
-        message    : function(message) {}, // RECEIVED A MESSAGE.
-        presence   : function(message) {}, // OTHER USERS JOIN/LEFT CHANNEL.
-        connect    : function() {},        // CONNECTION ESTABLISHED.
-        disconnect : function() {},        // LOST CONNECTION (OFFLINE).
-        reconnect  : function() {}         // CONNECTION BACK ONLINE!
+        channel    : "hello_world",                        // CONNECT TO THIS CHANNEL.
+        restore    : false,                                // FETCH MISSED MESSAGES ON PAGE CHANGES.
+        message    : function( message, env, channel ) {}, // RECEIVED A MESSAGE.
+        presence   : function( message, env, channel ) {}, // OTHER USERS JOIN/LEFT CHANNEL.
+        connect    : function() {},                        // CONNECTION ESTABLISHED.
+        disconnect : function() {},                        // LOST CONNECTION (OFFLINE).
+        reconnect  : function() {}                         // CONNECTION BACK ONLINE!
     })
 })();
 </script>
@@ -214,8 +263,8 @@ are open source, you’re welcome to see how we did it).
 To use AES encryption in PubNub, simply do the following:
 
 ```html
-<script src=https://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js></script>
-<script src=https://pubnub.a.ssl.fastly.net/pubnub-crypto-3.4.2.min.js></script>
+<script src=https://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js></script>
+<script src=https://pubnub.a.ssl.fastly.net/pubnub-crypto-3.4.4.min.js></script>
 <script>(function(){
     var secure_pubnub = PUBNUB.secure({
         publish_key   : 'demo',
@@ -240,6 +289,17 @@ To use AES encryption in PubNub, simply do the following:
             message : 'hello!'
         });
     }
+    
+    function get_encrypted_history() {
+        secure_pubnub.history({
+            channel: channel,
+            limit: 15,
+            callback: function(notifications) {
+                console.log(notifications);
+            }
+        });
+    }
+
 })();</script>
 ```
 
@@ -269,7 +329,7 @@ To use AES encryption in PubNub, simply do the following:
 ## SSL MODE
 ```html
 <div id=pubnub ssl=on></div>
-<script src=https://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js></script>
+<script src=https://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js></script>
 <script>(function(){
 
     var pubnub = PUBNUB.init({
@@ -293,7 +353,7 @@ To use AES encryption in PubNub, simply do the following:
 ## HISTORY
 ```html
 <div id=pubnub></div>
-<script src=http://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js></script>
+<script src=http://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js></script>
 <script>(function(){
 
     var pubnub = PUBNUB.init({
@@ -322,7 +382,7 @@ the timeline as they occured.
 
 ```html
 <div id=pubnub></div>
-<script src=http://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js></script>
+<script src=http://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js></script>
 <script>(function(){
 
 /* GENERATE CHANNEL */
@@ -350,6 +410,76 @@ function start_replay() {
 
 })();</script>
 ```
+
+## PRESENCE
+
+PubNub Network offers Channel Presence which
+allows you to ask the question "Who's There?"
+and get back an answer with list of users and the occupancy count.
+
+```html
+<div id=pubnub pub-key=demo sub-key=demo></div>
+<script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
+<script>(function(){
+    PUBNUB.subscribe({
+        channel    : "hello_world",                        // CONNECT TO THIS CHANNEL.
+        message    : function( message, env, channel ) {}, // RECEIVED A MESSAGE.
+        presence   : function( message, env, channel ) {   // PRESENCE
+            console.log( "Channel: ",            channel           );
+            console.log( "Join/Leave/Timeout: ", message.action    );
+            console.log( "Occupancy: ",          message.occupancy );
+            console.log( "User ID: ",            message.uuid      );
+            /* message is = {
+                    "action"    : "join",
+                    "timestamp" : 1347946204,
+                    "uuid"      : "6e08b25f-48c0-4e94-92d0-0778a8b6013d",
+                    "occupancy" : 1
+            } */
+        }
+        
+    })
+})();
+</script>
+```
+
+## BACKFILL
+
+PubNub Network offers automatic hot-memory backfill which pulls the full
+queue from the message Network to provide a response filled with a
+compressed GZIP payload up to the maximum size of your queue length.
+The Default Queue size is 100 for basic PubNub Accounts.
+Adding backfill to a truthy value on subscribe, you can pull up to the
+last 100 messages off of an in-memory queue.
+Note that this queue may not always return 100 messages and you may instead wish
+to use PubNub Network History API to guarantee pulling all historical messages.
+
+>If you need to increase your queue length, contact PubNub Network
+at help@pubnub.com for larger queue length.
+
+Notice that we are using `backfill : true` in
+the `pubnub.subscribe` call below.
+
+```html
+<div id=pubnub></div>
+<script src=http://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js></script>
+<script>(function(){
+
+    var pubnub = PUBNUB.init({
+        publish_key   : 'demo',
+        subscribe_key : 'demo'
+    });
+
+    pubnub.subscribe({
+        backfill : true,
+        channel  : 'my_channel',
+        callback : function(message) {
+            alert(JSON.stringify(message));
+        }
+    });
+
+})();</script>
+```
+
 
 ## WebSocket Client Interface
 
@@ -381,7 +511,7 @@ The following example opens a `new WebSocket` in
 
 ```html
 <!-- Import PubNub Core Lib -->
-<script src="https://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js"></script>
+<script src="https://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js"></script>
 
 <!-- Use WebSocket Constructor for a New Socket Connection -->
 <script>(function() {
@@ -429,7 +559,7 @@ The following example opens a `new WebSocket` in
 
 ```html
 <!-- NON-SSL Import PubNub Core Lib -->
-<script src="http://pubnub.a.ssl.fastly.net/pubnub-3.4.2.min.js"></script>
+<script src="http://pubnub.a.ssl.fastly.net/pubnub-3.4.4.min.js"></script>
 
 <!-- NON-SSL Use WebSocket Constructor for a New Socket Connection -->
 <script>(function() {
@@ -446,7 +576,7 @@ How to create a new instance of the PubNub Object directly in JavaScript.
 To do this, simply follow this `init` example:
 
 ```html
-<script src=http://cdn.pubnub.com/pubnub-3.4.2.min.js ></script>
+<script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>(function(){
 
     // INIT PubNub

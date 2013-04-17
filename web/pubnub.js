@@ -1,4 +1,4 @@
-// 3.4.2
+// Version: 3.4.4
 /* =-====================================================================-= */
 /* =-====================================================================-= */
 /* =-=========================     JSON     =============================-= */
@@ -149,104 +149,24 @@
         JSON['parse'] = function (text) {return eval('('+text+')')};
     }
 }());
-/* ---------------------------------------------------------------------------
-WAIT! - This file depends on instructions from the PUBNUB Cloud.
-http://www.pubnub.com/account-javascript-api-include
---------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------
-PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-Copyright (c) 2011 PubNub Inc.
-http://www.pubnub.com/
-http://www.pubnub.com/terms
---------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
---------------------------------------------------------------------------- */
-
-/* =-====================================================================-= */
-/* =-====================================================================-= */
-/* =-=========================     UTIL     =============================-= */
-/* =-====================================================================-= */
-/* =-====================================================================-= */
-
-window['PUBNUB'] || (function() {
-
-/**
- * UTIL LOCALS
- */
 var NOW             = 1
-,   SWF             = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
-,   REPL            = /{([\w\-]+)}/g
-,   ASYNC           = 'async'
-,   URLBIT          = '/'
-,   PARAMSBIT       = '&'
+,   READY           = false
+,   READY_BUFFER    = []
+,   PRESENCE_SUFFIX = '-pnpres'
 ,   DEF_WINDOWING   = 10     // MILLISECONDS.
 ,   DEF_TIMEOUT     = 10000  // MILLISECONDS.
 ,   DEF_SUB_TIMEOUT = 310    // SECONDS.
 ,   DEF_KEEPALIVE   = 60     // SECONDS.
 ,   SECOND          = 1000   // A THOUSAND MILLISECONDS.
-,   PRESENCE_SUFFIX = '-pnpres'
-,   UA              = navigator.userAgent
-,   XORIGN          = UA.indexOf('MSIE 6') == -1;
-
-/**
- * CONSOLE COMPATIBILITY
- */
-window.console || (window.console=window.console||{});
-console.log    || (
-    console.log   = 
-    console.error =
-    ((window.opera||{}).postError||function(){})
-);
+,   URLBIT          = '/'
+,   PARAMSBIT       = '&'
+,   REPL            = /{([\w\-]+)}/g;
 
 /**
  * UTILITIES
  */
 function unique() { return'x'+ ++NOW+''+(+new Date) }
 function rnow()   { return+new Date }
-
-/**
- * LOCAL STORAGE OR COOKIE
- */
-var db = (function(){
-    var ls = window['localStorage'];
-    return {
-        'get' : function(key) {
-            try {
-                if (ls) return ls.getItem(key);
-                if (document.cookie.indexOf(key) == -1) return null;
-                return ((document.cookie||'').match(
-                    RegExp(key+'=([^;]+)')
-                )||[])[1] || null;
-            } catch(e) { return }
-        },
-        'set' : function( key, value ) {
-            try {
-                if (ls) return ls.setItem( key, value ) && 0;
-                document.cookie = key + '=' + value +
-                    '; expires=Thu, 1 Aug 2030 20:00:00 UTC; path=/';
-            } catch(e) { return }
-        }
-    };
-})();
 
 /**
  * NEXTORIGIN
@@ -265,6 +185,26 @@ var nextorigin = (function() {
             ) ) || origin;
     }
 })();
+
+
+/**
+ * Build Url
+ * =======
+ *
+ */
+function build_url(url_components, url_params) {
+    var url     = url_components.join(URLBIT);
+
+    if (url_params) {
+        var params = [];
+        url += "?";
+        for (var key in url_params) {
+             params.push(key+"="+encode(url_params[key]));
+        }
+        url += params.join(PARAMSBIT);
+    }
+    return url;
+}
 
 /**
  * UPDATER
@@ -289,32 +229,49 @@ function updater( fun, rate ) {
 }
 
 /**
- * $
- * =
- * var div = $('divid');
+ * GREP
+ * ====
+ * var list = grep( [1,2,3], function(item) { return item % 2 } )
  */
-function $(id) { return document.getElementById(id) }
+function grep( list, fun ) {
+    var fin = [];
+    each( list || [], function(l) { fun(l) && fin.push(l) } );
+    return fin
+}
 
 /**
- * ERROR
- * =====
- * error('message');
+ * SUPPLANT
+ * ========
+ * var text = supplant( 'Hello {name}!', { name : 'John' } )
  */
-function error(message) { console['error'](message) }
-
-/**
- * SEARCH
- * ======
- * var elements = search('a div span');
- */
-function search( elements, start ) {
-    var list = [];
-    each( elements.split(/\s+/), function(el) {
-        each( (start || document).getElementsByTagName(el), function(node) {
-            list.push(node);
-        } );
+function supplant( str, values ) {
+    return str.replace( REPL, function( _, match ) {
+        return values[match] || _
     } );
-    return list;
+}
+
+/**
+ * timeout
+ * =======
+ * timeout( function(){}, 100 );
+ */
+function timeout( fun, wait ) {
+    return setTimeout( fun, wait );
+}
+
+/**
+ * uuid
+ * ====
+ * var my_uuid = uuid();
+ */
+function uuid(callback) {
+    var u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+    function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+    if (callback) callback(u);
+    return u;
 }
 
 /**
@@ -347,133 +304,6 @@ function map( list, fun ) {
 }
 
 /**
- * GREP
- * ====
- * var list = grep( [1,2,3], function(item) { return item % 2 } )
- */
-function grep( list, fun ) {
-    var fin = [];
-    each( list || [], function(l) { fun(l) && fin.push(l) } );
-    return fin
-}
-
-/**
- * SUPPLANT
- * ========
- * var text = supplant( 'Hello {name}!', { name : 'John' } )
- */
-function supplant( str, values ) {
-    return str.replace( REPL, function( _, match ) {
-        return values[match] || _
-    } );
-}
-
-/**
- * BIND
- * ====
- * bind( 'keydown', search('a')[0], function(element) {
- *     ...
- * } );
- */
-function bind( type, el, fun ) {
-    each( type.split(','), function(etype) {
-        var rapfun = function(e) {
-            if (!e) e = window.event;
-            if (!fun(e)) {
-                e.cancelBubble = true;
-                e.returnValue  = false;
-                e.preventDefault && e.preventDefault();
-                e.stopPropagation && e.stopPropagation();
-            }
-        };
-
-        if ( el.addEventListener ) el.addEventListener( etype, rapfun, false );
-        else if ( el.attachEvent ) el.attachEvent( 'on' + etype, rapfun );
-        else  el[ 'on' + etype ] = rapfun;
-    } );
-}
-
-/**
- * UNBIND
- * ======
- * unbind( 'keydown', search('a')[0] );
- */
-function unbind( type, el, fun ) {
-    if ( el.removeEventListener ) el.removeEventListener( type, false );
-    else if ( el.detachEvent ) el.detachEvent( 'on' + type, false );
-    else  el[ 'on' + type ] = null;
-}
-
-/**
- * HEAD
- * ====
- * head().appendChild(elm);
- */
-function head() { return search('head')[0] }
-
-/**
- * ATTR
- * ====
- * var attribute = attr( node, 'attribute' );
- */
-function attr( node, attribute, value ) {
-    if (value) node.setAttribute( attribute, value );
-    else return node && node.getAttribute && node.getAttribute(attribute);
-}
-
-/**
- * CSS
- * ===
- * var obj = create('div');
- */
-function css( element, styles ) {
-    for (var style in styles) if (styles.hasOwnProperty(style))
-        try {element.style[style] = styles[style] + (
-            '|width|height|top|left|'.indexOf(style) > 0 &&
-            typeof styles[style] == 'number'
-            ? 'px' : ''
-        )}catch(e){}
-}
-
-/**
- * CREATE
- * ======
- * var obj = create('div');
- */
-function create(element) { return document.createElement(element) }
-
-/**
- * timeout
- * =======
- * timeout( function(){}, 100 );
- */
-function timeout( fun, wait ) {
-    return setTimeout( fun, wait );
-}
-
-/**
- * uuid
- * ====
- * var my_uuid = uuid();
- */
-function uuid(callback) {
-    var u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
-    function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
-    if (callback) callback(u);
-    return u;
-}
-
-/**
- * jsonp_cb
- * ========
- * var callback = jsonp_cb();
- */
-function jsonp_cb() { return XORIGN || FDomainRequest() ? 0 : unique() }
-
-/**
  * ENCODE
  * ======
  * var encoded_path = encode('path');
@@ -483,172 +313,6 @@ function encode(path) {
         return "-_.!~*'()".indexOf(chr) < 0 ? chr :
                "%"+chr.charCodeAt(0).toString(16).toUpperCase()
     } ).join('');
-}
-
-/**
- * EVENTS
- * ======
- * PUBNUB.events.bind( 'you-stepped-on-flower', function(message) {
- *     // Do Stuff with message
- * } );
- *
- * PUBNUB.events.fire( 'you-stepped-on-flower', "message-data" );
- * PUBNUB.events.fire( 'you-stepped-on-flower', {message:"data"} );
- * PUBNUB.events.fire( 'you-stepped-on-flower', [1,2,3] );
- *
- */
-var events = {
-    'list'   : {},
-    'unbind' : function( name ) { events.list[name] = [] },
-    'bind'   : function( name, fun ) {
-        (events.list[name] = events.list[name] || []).push(fun);
-    },
-    'fire' : function( name, data ) {
-        each(
-            events.list[name] || [],
-            function(fun) { fun(data) }
-        );
-    }
-};
-
-/**
- * XDR Cross Domain Request
- * ========================
- *  xdr({
- *     url     : ['http://www.blah.com/url'],
- *     success : function(response) {},
- *     fail    : function() {}
- *  });
- */
-function xdr( setup ) {
-    if (XORIGN || FDomainRequest()) return ajax(setup);
-
-    var script    = create('script')
-    ,   callback  = setup.callback
-    ,   id        = unique()
-    ,   finished  = 0
-    ,   xhrtme    = setup.timeout || DEF_TIMEOUT
-    ,   timer     = timeout( function(){done(1)}, xhrtme )
-    ,   fail      = setup.fail    || function(){}
-    ,   success   = setup.success || function(){}
-
-    ,   append = function() {
-            head().appendChild(script);
-        }
-
-    ,   done = function( failed, response ) {
-            if (finished) return;
-                finished = 1;
-
-            failed || success(response);
-            script.onerror = null;
-            clearTimeout(timer);
-
-            timeout( function() {
-                failed && fail();
-                var s = $(id)
-                ,   p = s && s.parentNode;
-                p && p.removeChild(s);
-            }, SECOND );
-        };
-
-    window[callback] = function(response) {
-        done( 0, response );
-    };
-
-    if (!setup.blocking) script[ASYNC] = ASYNC;
-
-    script.onerror = function() { done(1) };
-    script.src     = setup.url.join(URLBIT);
-
-    if (setup.data) {
-        var params = [];
-        script.src += "?";
-        for (var key in setup.data) {
-             params.push(key+"="+setup.data[key]);
-        }
-        script.src += params.join(PARAMSBIT);
-    }
-    attr( script, 'id', id );
-
-    append();
-    return done;
-}
-
-/**
- * CORS XHR Request
- * ================
- *  xdr({
- *     url     : ['http://www.blah.com/url'],
- *     success : function(response) {},
- *     fail    : function() {}
- *  });
- */
-function ajax( setup ) {
-    var xhr, response
-    ,   finished = function() {
-            if (loaded) return;
-                loaded = 1;
-
-            clearTimeout(timer);
-
-            try       { response = JSON['parse'](xhr.responseText); }
-            catch (r) { return done(1); }
-
-            success(response);
-        }
-    ,   complete = 0
-    ,   loaded   = 0
-    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
-    ,   timer    = timeout( function(){done(1)}, xhrtme )
-    ,   fail     = setup.fail    || function(){}
-    ,   success  = setup.success || function(){}
-    ,   done     = function(failed) {
-            if (complete) return;
-                complete = 1;
-
-            clearTimeout(timer);
-
-            if (xhr) {
-                xhr.onerror = xhr.onload = null;
-                xhr.abort && xhr.abort();
-                xhr = null;
-            }
-
-            failed && fail();
-        };
-
-    // Send
-    try {
-        xhr = FDomainRequest()      ||
-              window.XDomainRequest &&
-              new XDomainRequest()  ||
-              new XMLHttpRequest();
-
-        xhr.onerror = xhr.onabort   = function(){ done(1) };
-        xhr.onload  = xhr.onloadend = finished;
-        xhr.timeout = xhrtme;
-
-        var url = setup.url.join(URLBIT);
-        if (setup.data) {
-            var params = [];
-            var key;
-            url += "?";
-            for (key in setup.data) params.push(key+"="+setup.data[key]);
-            url += params.join(PARAMSBIT);
-        }
-
-        xhr.open( 'GET', url, (typeof(setup.blocking === 'undefined')) );
-        xhr.send();
-    }
-    catch(eee) {
-        done(0);
-        XORIGN = 0;
-        return xdr(setup);
-    }
-
-    // Return 'done'
-    return done;
 }
 
 /**
@@ -664,21 +328,24 @@ function generate_channel_list(channels) {
     return list.sort();
 }
 
-/* =-====================================================================-= */
-/* =-====================================================================-= */
-/* =-=========================     PUBNUB     ===========================-= */
-/* =-====================================================================-= */
-/* =-====================================================================-= */
+// PUBNUB READY TO CONNECT
+function ready() { timeout( function() {
+    if (READY) return;
+    READY = 1;
+    each( READY_BUFFER, function(connect) { connect() } );
+}, SECOND ); }
 
-var PDIV          = $('pubnub') || 0
-,   READY         = 0
-,   READY_BUFFER  = []
-,   CREATE_PUBNUB = function(setup) {
-
-    // Force JSONP if requested from user.
-    if (setup['jsonp']) XORIGN = 0;
-
-    var CHANNELS      = {}
+function PN_API(setup) {
+    var SUB_WINDOWING =  +setup['windowing']   || DEF_WINDOWING
+    ,   SUB_TIMEOUT   = (+setup['timeout']     || DEF_SUB_TIMEOUT) * SECOND
+    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
+    ,   PUBLISH_KEY   = setup['publish_key']   || ''
+    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
+    ,   SSL           = setup['ssl'] ? 's' : ''
+    ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
+    ,   STD_ORIGIN    = nextorigin(ORIGIN)
+    ,   SUB_ORIGIN    = nextorigin(ORIGIN)
+    ,   CONNECT       = function(){}
     ,   PUB_QUEUE     = []
     ,   SUB_CALLBACK  = 0
     ,   SUB_CHANNEL   = 0
@@ -686,19 +353,53 @@ var PDIV          = $('pubnub') || 0
     ,   SUB_RESTORE   = 0
     ,   SUB_BUFF_WAIT = 0
     ,   TIMETOKEN     = 0
-    ,   SUB_WINDOWING =  +setup['windowing']   || DEF_WINDOWING
-    ,   SUB_TIMEOUT   = (+setup['timeout']     || DEF_SUB_TIMEOUT) * SECOND
-    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
-    ,   PUBLISH_KEY   = setup['publish_key']   || ''
-    ,   SUBSCRIBE_KEY = setup['subscribe_key'] || ''
-    ,   SSL           = setup['ssl'] ? 's' : ''
-    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid') || ''
-    ,   ORIGIN        = 'http'+SSL+'://'+(setup['origin']||'pubsub.pubnub.com')
-    ,   STD_ORIGIN    = nextorigin(ORIGIN)
-    ,   SUB_ORIGIN    = nextorigin(ORIGIN)
-    ,   LEAVE         = function(){}
-    ,   CONNECT       = function(){}
-    ,   SELF          = {
+    ,   CHANNELS      = {}
+    ,   xdr           = setup['xdr']
+    ,   error         = setup['error'] || function() {}
+    ,   _is_online    = setup['_is_online'] || function() { return 1; }
+    ,   jsonp_cb      = setup['jsonp_cb'] || function(){ return 0; }
+    ,   db            = setup['db'] || {'get': function(){}, 'set': function(){}}
+    ,   UUID          = setup['uuid'] || ( db && db['get'](SUBSCRIBE_KEY+'uuid') || '');
+
+    function publish(next) {
+        if (next) PUB_QUEUE.sending = 0;
+        if (PUB_QUEUE.sending || !PUB_QUEUE.length) return;
+        PUB_QUEUE.sending = 1;
+        xdr(PUB_QUEUE.shift());
+    }
+
+    function each_channel(callback) {
+        each( generate_channel_list(CHANNELS), function(channel) {
+            var chan = CHANNELS[channel];
+            if (!chan) return;
+            callback(chan);
+        } );
+    }
+
+    // Announce Leave Event
+    var SELF = {
+        'LEAVE' : function( channel, blocking ) {
+            var data   = { 'uuid' : UUID}
+            ,   origin = nextorigin(ORIGIN)
+            ,   jsonp  = jsonp_cb();
+
+            // Prevent Leaving a Presence Channel
+            if (channel.indexOf(PRESENCE_SUFFIX) > 0) return;
+
+            if (jsonp != '0') data['callback'] = jsonp;
+
+
+            xdr({
+                blocking : blocking || SSL,
+                timeout  : 2000,
+                callback : jsonp,
+                data     : data,
+                url      : [
+                    origin, 'v2', 'presence', 'sub_key',
+                    SUBSCRIBE_KEY, 'channel', encode(channel), 'leave'
+                ]
+            });
+        },
         /*
             PUBNUB.history({
                 channel  : 'my_chat_channel',
@@ -707,7 +408,7 @@ var PDIV          = $('pubnub') || 0
             });
         */
         'history' : function( args, callback ) {
-            var callback = args['callback'] || callback 
+            var callback = args['callback'] || callback
             ,   count    = args['count']    || args['limit'] || 100
             ,   reverse  = args['reverse']  || "false"
             ,   err      = args['error']    || function(){}
@@ -868,7 +569,7 @@ var PDIV          = $('pubnub') || 0
 
             // Iterate over Channels
             each( channel.split(','), function(channel) {
-                if (READY) LEAVE( channel, 0 );
+                if (READY) SELF['LEAVE']( channel, 0 );
                 CHANNELS[channel] = 0;
             } );
 
@@ -891,12 +592,15 @@ var PDIV          = $('pubnub') || 0
             ,   disconnect    = args['disconnect']    || function(){}
             ,   presence      = args['presence']      || 0
             ,   noheresync    = args['noheresync']    || 0
+            ,   backfill      = args['backfill']    || 0
             ,   sub_timeout   = args['timeout']       || SUB_TIMEOUT
             ,   windowing     = args['windowing']     || SUB_WINDOWING
             ,   restore       = args['restore'];
 
             // Restore Enabled?
             if (restore) SUB_RESTORE = 1;
+
+            TIMETOKEN = 0;
 
             // Make sure we have a Channel
             if (!channel)       return error('Missing Channel');
@@ -1015,6 +719,12 @@ var PDIV          = $('pubnub') || 0
                                     SUB_RESTORE              &&
                                     db['get'](SUBSCRIBE_KEY) || messages[1];
 
+
+                        if (backfill) {
+                            Timetoken = 10000;
+                            backfill  = 0;
+                        }
+
                         // Update Saved Timetoken
                         db['set']( SUBSCRIBE_KEY, messages[1] );
 
@@ -1062,18 +772,21 @@ var PDIV          = $('pubnub') || 0
         },
 
         'here_now' : function( args, callback ) {
-            var callback = args['callback'] || callback 
+            var callback = args['callback'] || callback
             ,   err      = args['error']    || function(){}
             ,   channel  = args['channel']
             ,   jsonp    = jsonp_cb()
-            ,   data     = {};
+            ,   data     = null;
 
             // Make sure we have a Channel
             if (!channel)       return error('Missing Channel');
             if (!callback)      return error('Missing Callback');
             if (!SUBSCRIBE_KEY) return error('Missing Subscribe Key');
-            
-            if (jsonp != '0') data['callback'] = jsonp;
+
+            if (jsonp != '0') {
+                data = {};
+                data['callback'] = jsonp;
+            }
 
             xdr({
                 callback : jsonp,
@@ -1082,120 +795,436 @@ var PDIV          = $('pubnub') || 0
                 fail     : err,
                 url      : [
                     STD_ORIGIN, 'v2', 'presence',
-                    'sub_key', SUBSCRIBE_KEY, 
+                    'sub_key', SUBSCRIBE_KEY,
                     'channel', encode(channel)
                 ]
             });
         },
 
         // Expose PUBNUB Functions
-        'xdr'      : xdr,
-        'ready'    : ready,
-        'db'       : db,
-        'uuid'     : uuid,
-        'each'     : each,
-        'map'      : map,
-        'grep'     : grep,
-        'css'      : css,
-        '$'        : $,
-        'create'   : create,
-        'bind'     : bind,
-        'supplant' : supplant,
-        'head'     : head,
-        'search'   : search,
-        'attr'     : attr,
-        'now'      : rnow,
-        'unique'   : unique,
-        'events'   : events,
-        'updater'  : updater,
-        'init'     : CREATE_PUBNUB
+        'xdr'           : xdr,
+        'ready'         : ready,
+        'db'            : db,
+        'uuid'          : uuid,
+        'map'           : map,
+        'each'          : each,
+        'each-channel'  : each_channel,
+        'grep'          : grep,
+        'supplant'      : supplant,
+        'now'           : rnow,
+        'unique'        : unique,
+        'updater'       : updater
     };
 
-    PUB_QUEUE.sending = 0;
-    function publish(next) {
-        if (next) PUB_QUEUE.sending = 0;
-        if (PUB_QUEUE.sending || !PUB_QUEUE.length) return;
-        PUB_QUEUE.sending = 1;
-        xdr(PUB_QUEUE.shift());
-    }
-
-    function each_channel(callback) {
-        each( generate_channel_list(CHANNELS), function(channel) {
-            var chan = CHANNELS[channel];
-            if (!chan) return;
-            callback(chan);
-        } );
-    }
-
-    if (!UUID) UUID = uuid();
-    db['set']( SUBSCRIBE_KEY + 'uuid', UUID );
-
-    // Return without Testing 
-    if (setup['notest']) return SELF;
-
-    // Announce Leave Event
-    LEAVE = function( channel, blocking ) {
-        var data   = { 'uuid' : UUID }
-        ,   origin = nextorigin(ORIGIN)
-        ,   jsonp  = jsonp_cb();
-
-        // Prevent Leaving a Presence Channel
-        if (channel.indexOf(PRESENCE_SUFFIX) > 0) return;
-
-        if (jsonp != '0') data['callback'] = jsonp;
-
-        xdr({
-            blocking : blocking || SSL,
-            timeout  : 2000,
-            callback : jsonp,
-            data     : data,
-            url      : [
-                origin, 'v2', 'presence', 'sub_key',
-                SUBSCRIBE_KEY, 'channel', encode(channel), 'leave'
-            ]
-        });
-    };
-
-    // Add Leave Functions
-    bind( 'beforeunload', window, function() {
-        each_channel(function(ch){ LEAVE( ch.name, 1 ) });
-        return true;
-    } );
-
-    // Test Connection State
-    function _is_online() {
-        if (!('onLine' in navigator)) return 1;
-        return navigator['onLine'];
-    }
     function _poll_online() {
         _is_online() || _reset_offline();
         timeout( _poll_online, SECOND );
     }
+
     function _poll_online2() {
         SELF['time'](function(success){
             success || _reset_offline();
             timeout( _poll_online2, KEEPALIVE );
-        });
+        })
     }
+
     function _reset_offline() {
         SUB_RECEIVER && SUB_RECEIVER(1);
     }
+
+    if (!UUID) UUID = SELF['uuid']();
+    db['set']( SUBSCRIBE_KEY + 'uuid', UUID );
+
     timeout( _poll_online,  SECOND    );
     timeout( _poll_online2, KEEPALIVE );
 
-    bind( 'offline', window,   _reset_offline );
-    bind( 'offline', document, _reset_offline );
+    return SELF;
+}
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+/* =-=========================     UTIL     =============================-= */
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+
+window['PUBNUB'] || (function() {
+
+/**
+ * UTIL LOCALS
+ */
+
+var SWF               = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
+,   ASYNC           = 'async'
+,   UA              = navigator.userAgent
+,    PNSDK              = 'PubNub-JS-' + 'Web' + '/' + '3.4.4'
+,   XORIGN          = UA.indexOf('MSIE 6') == -1;
+
+/**
+ * CONSOLE COMPATIBILITY
+ */
+window.console || (window.console=window.console||{});
+console.log    || (
+    console.log   =
+    console.error =
+    ((window.opera||{}).postError||function(){})
+);
+
+
+
+/**
+ * LOCAL STORAGE OR COOKIE
+ */
+var db = (function(){
+    var ls = window['localStorage'];
+    return {
+        'get' : function(key) {
+            try {
+                if (ls) return ls.getItem(key);
+                if (document.cookie.indexOf(key) == -1) return null;
+                return ((document.cookie||'').match(
+                    RegExp(key+'=([^;]+)')
+                )||[])[1] || null;
+            } catch(e) { return }
+        },
+        'set' : function( key, value ) {
+            try {
+                if (ls) return ls.setItem( key, value ) && 0;
+                document.cookie = key + '=' + value +
+                    '; expires=Thu, 1 Aug 2030 20:00:00 UTC; path=/';
+            } catch(e) { return }
+        }
+    };
+})();
+
+
+/**
+ * $
+ * =
+ * var div = $('divid');
+ */
+function $(id) { return document.getElementById(id) }
+
+/**
+ * ERROR
+ * =====
+ * error('message');
+ */
+function error(message) { console['error'](message) }
+
+/**
+ * SEARCH
+ * ======
+ * var elements = search('a div span');
+ */
+function search( elements, start ) {
+    var list = [];
+    each( elements.split(/\s+/), function(el) {
+        each( (start || document).getElementsByTagName(el), function(node) {
+            list.push(node);
+        } );
+    } );
+    return list;
+}
+
+
+
+/**
+ * BIND
+ * ====
+ * bind( 'keydown', search('a')[0], function(element) {
+ *     ...
+ * } );
+ */
+function bind( type, el, fun ) {
+    each( type.split(','), function(etype) {
+        var rapfun = function(e) {
+            if (!e) e = window.event;
+            if (!fun(e)) {
+                e.cancelBubble = true;
+                e.returnValue  = false;
+                e.preventDefault && e.preventDefault();
+                e.stopPropagation && e.stopPropagation();
+            }
+        };
+
+        if ( el.addEventListener ) el.addEventListener( etype, rapfun, false );
+        else if ( el.attachEvent ) el.attachEvent( 'on' + etype, rapfun );
+        else  el[ 'on' + etype ] = rapfun;
+    } );
+}
+
+/**
+ * UNBIND
+ * ======
+ * unbind( 'keydown', search('a')[0] );
+ */
+function unbind( type, el, fun ) {
+    if ( el.removeEventListener ) el.removeEventListener( type, false );
+    else if ( el.detachEvent ) el.detachEvent( 'on' + type, false );
+    else  el[ 'on' + type ] = null;
+}
+
+/**
+ * HEAD
+ * ====
+ * head().appendChild(elm);
+ */
+function head() { return search('head')[0] }
+
+/**
+ * ATTR
+ * ====
+ * var attribute = attr( node, 'attribute' );
+ */
+function attr( node, attribute, value ) {
+    if (value) node.setAttribute( attribute, value );
+    else return node && node.getAttribute && node.getAttribute(attribute);
+}
+
+/**
+ * CSS
+ * ===
+ * var obj = create('div');
+ */
+function css( element, styles ) {
+    for (var style in styles) if (styles.hasOwnProperty(style))
+        try {element.style[style] = styles[style] + (
+            '|width|height|top|left|'.indexOf(style) > 0 &&
+            typeof styles[style] == 'number'
+            ? 'px' : ''
+        )}catch(e){}
+}
+
+/**
+ * CREATE
+ * ======
+ * var obj = create('div');
+ */
+function create(element) { return document.createElement(element) }
+
+
+/**
+ * jsonp_cb
+ * ========
+ * var callback = jsonp_cb();
+ */
+function jsonp_cb() { return XORIGN || FDomainRequest() ? 0 : unique() }
+
+
+
+/**
+ * EVENTS
+ * ======
+ * PUBNUB.events.bind( 'you-stepped-on-flower', function(message) {
+ *     // Do Stuff with message
+ * } );
+ *
+ * PUBNUB.events.fire( 'you-stepped-on-flower', "message-data" );
+ * PUBNUB.events.fire( 'you-stepped-on-flower', {message:"data"} );
+ * PUBNUB.events.fire( 'you-stepped-on-flower', [1,2,3] );
+ *
+ */
+var events = {
+    'list'   : {},
+    'unbind' : function( name ) { events.list[name] = [] },
+    'bind'   : function( name, fun ) {
+        (events.list[name] = events.list[name] || []).push(fun);
+    },
+    'fire' : function( name, data ) {
+        each(
+            events.list[name] || [],
+            function(fun) { fun(data) }
+        );
+    }
+};
+
+/**
+ * XDR Cross Domain Request
+ * ========================
+ *  xdr({
+ *     url     : ['http://www.blah.com/url'],
+ *     success : function(response) {},
+ *     fail    : function() {}
+ *  });
+ */
+function xdr( setup ) {
+    if (XORIGN || FDomainRequest()) return ajax(setup);
+
+    var script    = create('script')
+    ,   callback  = setup.callback
+    ,   id        = unique()
+    ,   finished  = 0
+    ,   xhrtme    = setup.timeout || DEF_TIMEOUT
+    ,   timer     = timeout( function(){done(1)}, xhrtme )
+    ,   fail      = setup.fail    || function(){}
+    ,   data      = setup.data    || {}
+    ,   success   = setup.success || function(){}
+
+    ,   append = function() {
+            head().appendChild(script);
+        }
+
+    ,   done = function( failed, response ) {
+            if (finished) return;
+                finished = 1;
+
+            failed || success(response);
+            script.onerror = null;
+            clearTimeout(timer);
+
+            timeout( function() {
+                failed && fail();
+                var s = $(id)
+                ,   p = s && s.parentNode;
+                p && p.removeChild(s);
+            }, SECOND );
+        };
+
+    window[callback] = function(response) {
+        done( 0, response );
+    };
+
+    if (!setup.blocking) script[ASYNC] = ASYNC;
+
+    script.onerror = function() { done(1) };
+    data['pnsdk']  = PNSDK;
+    script.src     = build_url(setup.url,data);
+
+    attr( script, 'id', id );
+
+    append();
+    return done;
+}
+
+/**
+ * CORS XHR Request
+ * ================
+ *  xdr({
+ *     url     : ['http://www.blah.com/url'],
+ *     success : function(response) {},
+ *     fail    : function() {}
+ *  });
+ */
+function ajax( setup ) {
+    var xhr, response
+    ,   finished = function() {
+            if (loaded) return;
+                loaded = 1;
+
+            clearTimeout(timer);
+
+            try       { response = JSON['parse'](xhr.responseText); }
+            catch (r) { return done(1); }
+
+            success(response);
+        }
+    ,   complete = 0
+    ,   loaded   = 0
+    ,   xhrtme   = setup.timeout || DEF_TIMEOUT
+    ,   timer    = timeout( function(){done(1)}, xhrtme )
+    ,   fail     = setup.fail    || function(){}
+    ,   data     = setup.data    || {}
+    ,   success  = setup.success || function(){}
+    ,   async    = ( typeof(setup.blocking) === 'undefined' )
+    ,   done     = function(failed) {
+            if (complete) return;
+                complete = 1;
+
+            clearTimeout(timer);
+
+            if (xhr) {
+                xhr.onerror = xhr.onload = null;
+                xhr.abort && xhr.abort();
+                xhr = null;
+            }
+
+            failed && fail();
+        };
+
+    // Send
+    try {
+        xhr = FDomainRequest()      ||
+              window.XDomainRequest &&
+              new XDomainRequest()  ||
+              new XMLHttpRequest();
+
+        xhr.onerror = xhr.onabort   = function(){ done(1) };
+        xhr.onload  = xhr.onloadend = finished;
+        if (async) xhr.timeout = xhrtme;
+
+        data['pnsdk'] = PNSDK;
+        var url = build_url(setup.url,data);
+
+        xhr.open( 'GET', url, async );
+        xhr.send();
+    }
+    catch(eee) {
+        done(0);
+        XORIGN = 0;
+        return xdr(setup);
+    }
+
+    // Return 'done'
+    return done;
+}
+
+
+
+ // Test Connection State
+function _is_online() {
+    if (!('onLine' in navigator)) return 1;
+    return navigator['onLine'];
+}
+
+
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+/* =-=========================     PUBNUB     ===========================-= */
+/* =-====================================================================-= */
+/* =-====================================================================-= */
+
+var PDIV          = $('pubnub') || 0
+,   CREATE_PUBNUB = function(setup) {
+
+    // Force JSONP if requested from user.
+    if (setup['jsonp']) XORIGN = 0;
+
+    var SUBSCRIBE_KEY = setup['subscribe_key'] || ''
+    ,   KEEPALIVE     = (+setup['keepalive']   || DEF_KEEPALIVE)   * SECOND
+    ,   UUID          = setup['uuid'] || db['get'](SUBSCRIBE_KEY+'uuid')||'';
+
+    setup['xdr']        = xdr;
+    setup['db']         = db;
+    setup['error']      = error;
+    setup['_is_online'] = _is_online;
+    setup['jsonp_cb']   = jsonp_cb;
+
+    var SELF            = PN_API(setup);
+    SELF['css']         = css;
+    SELF['$']           = $;
+    SELF['create']      = create;
+    SELF['bind']        = bind;
+    SELF['head']        = head;
+    SELF['search']      = search;
+    SELF['attr']        = attr;
+    SELF['events']      = events;
+    SELF['init']        = CREATE_PUBNUB;
+
+
+    // Add Leave Functions
+    bind( 'beforeunload', window, function() {
+        SELF['each-channel'](function(ch){ SELF['LEAVE']( ch.name, 1 ) });
+        return true;
+    } );
+
+    // Return without Testing
+    if (setup['notest']) return SELF;
+
+    bind( 'offline', window,   SELF['_reset_offline'] );
+    bind( 'offline', document, SELF['_reset_offline'] );
 
     // Return PUBNUB Socket Object
     return SELF;
 };
-
-// PUBNUB READY TO CONNECT
-function ready() { timeout( function() {
-    if (READY) return;
-    READY = 1;
-    each( READY_BUFFER, function(connect) { connect() } );
-}, SECOND ); }
 
 // Bind for PUBNUB Readiness to Subscribe
 bind( 'load', window, function(){ timeout( ready, 0 ) } );
@@ -1293,7 +1322,7 @@ var WS = PUBNUB['ws'] = function( url, protocols ) {
     self['CLOSE_ABNORMAL']       = 1006; // Abnormal Disconnect.
 
     // Events Default
-    self['onclose']   = self['onerror'] = 
+    self['onclose']   = self['onerror'] =
     self['onmessage'] = self['onopen']  =
     self['onsend']    =  function(){};
 
