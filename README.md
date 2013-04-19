@@ -17,13 +17,32 @@ You may access the latest PubNub JavaScript SDK on The PubNub Network CDN.
 
 ```html
 <script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
-<script>(function(){
-    var pubnub = PUBNUB.init({
-        publish_key   : 'demo',
-        subscribe_key : 'demo'
-    });
-})();</script>
 ```
+
+##For steps to create or initialize Pubnub object please refer to the respective 
+README
+
+### Web
+https://github.com/pubnub/javascript/blob/master/web/README.md
+
+### Modern
+https://github.com/pubnub/javascript/blob/master/modern/README.md
+
+### Node.js
+https://github.com/pubnub/javascript/blob/master/nodejs/README.md
+
+### Titanium
+https://github.com/pubnub/javascript/blob/master/titanium/README.md
+
+### Phonegap
+https://github.com/pubnub/javascript/blob/master/phonegap/README.md
+
+### Webos
+https://github.com/pubnub/javascript/blob/master/webos/README.md
+
+### Sencha
+https://github.com/pubnub/javascript/blob/master/sencha/README.md
+
 
 >**NOTE:** SSL Mode requires a few extra steps: [SSL MODE](README.md#ssl-mode)
 
