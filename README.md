@@ -36,64 +36,23 @@ see below here:
 
 ## Initializing
 
-If you setup credentials using a div, for example:
-
-```html
-<div id=pubnub pub-key=demo sub-key=demo></div>
-```
-you access PubNub methods via PUBNUB class methods:
-
-```javascript
-PUBNUB.publish({
-    channel : "hello_world",
-    message : "Hi."
-})
-```
-
-If you setup credentials using the PUBNUB.init() method, for example:
+You can setup credentials using the PUBNUB.init() method, for example:
 
 ```javascript    
 var p = PUBNUB.init({publish_key : 'demo' , subscribe_key : 'demo'});
 ```
-
-you access PubNub methods via ```p```'s instance methods:
-
-```javascript
-p.publish({
-        channel : "hello_world",
-        message : "Hi."
-    })
-```
-
-When working with any non-web JavaScript-based client (such as a mobile
-JS-based client, like PhoneGap, Titanium, etc), you MUST use this
-slightly-modified method of instantiation:
-
-```javascript
-var m = PUBNUB({publish_key : 'demo' , subscribe_key : 'demo'});
-// no explicit PUBNUB.init() method call!
-```
-
-and access PubNub methods via ```m```'s instance methods:
-    
-```javascript    
-m.publish({
-    channel : "hello_world",
-    message : "Hi."
-})
-```
+and then access PubNub methods via ```p```'s instance methods:
 
 #### Basic Send
 ```javascript
-PUBNUB.publish({
+p.publish({
     channel : "hello_world",
     message : "Hi."
 })
 ```
-
 #### Basic Receive
 ```javascript
-PUBNUB.subscribe({
+p.subscribe({
     channel : "hello_world",
     message : function(m){ alert(m) }
 })
@@ -128,12 +87,12 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 >**NOTE:** Copy and paste this example into a *blank* HTML file.
 
 ```html
-<div id=pubnub pub-key=demo sub-key=demo></div>
+
 <script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>
-
+    var pubnub = PUBNUB.init({publish_key : 'demo' , subscribe_key : 'demo'});
     // LISTEN
-    PUBNUB.subscribe({
+    pubnub.subscribe({
         channel : "hello_world",
         message : function(m){ alert(m) },
         connect : publish
@@ -141,7 +100,7 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 
     // SEND
     function publish() {
-        PUBNUB.publish({
+        pubnub.publish({
             channel : "hello_world",
             message : "Hi."
         })
@@ -152,10 +111,12 @@ JavaScript SDK using the **web** build.  It's as easy as `copy/paste`.
 
 ## ADVANCED SUBSCRIBE CONNECTIVITY OPTIONS/CALLBACKS
 ```html
-<div id=pubnub pub-key=demo sub-key=demo></div>
+
 <script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>(function(){
-    PUBNUB.subscribe({
+    
+    var pubnub = PUBNUB.init({publish_key : 'demo' , subscribe_key : 'demo'});
+    pubnub.subscribe({
         channel    : "hello_world",                        // CONNECT TO THIS CHANNEL.
         restore    : false,                                // FETCH MISSED MESSAGES ON PAGE CHANGES.
         message    : function( message, env, channel ) {}, // RECEIVED A MESSAGE.
@@ -415,10 +376,11 @@ allows you to ask the question "Who's There?"
 and get back an answer with list of users and the occupancy count.
 
 ```html
-<div id=pubnub pub-key=demo sub-key=demo></div>
+
 <script src=http://cdn.pubnub.com/pubnub-3.4.4.min.js ></script>
 <script>(function(){
-    PUBNUB.subscribe({
+    var pubnub = PUBNUB.init({publish_key : 'demo' , subscribe_key : 'demo'});
+    pubnub.subscribe({
         channel    : "hello_world",                        // CONNECT TO THIS CHANNEL.
         message    : function( message, env, channel ) {}, // RECEIVED A MESSAGE.
         presence   : function( message, env, channel ) {   // PRESENCE
