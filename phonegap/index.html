@@ -80,7 +80,7 @@
         }
     }
 
-    var p            = PUBNUB({ publish_key : 'demo', subscribe_key : 'demo' })
+    var p            = PUBNUB.init({ publish_key : 'demo', subscribe_key : 'demo' })
     ,   many_con_tst = 'opera' in window ? -1 : 10
     ,   channel      = 'pn-javascript-unit-test' + '-' + p.uuid()
     ,   out          = p.$('unit-test-out')

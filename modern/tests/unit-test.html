@@ -128,7 +128,7 @@
 
 
     var REPL = /{([\w\-]+)}/g
-    ,   p    = PUBNUB({ publish_key : 'demo', subscribe_key : 'demo' });
+    ,   p    = PUBNUB.init({ publish_key : 'demo', subscribe_key : 'demo' });
 
     p.supplant = function supplant( str, values ) {
         return str.replace( REPL, function( _, match ) {

@@ -986,7 +986,7 @@ function PN(setup) {
 }
 
 typeof module  !== 'undefined' && (module.exports = PN) ||
-typeof exports !== 'undefined' && (exports.PN = PN)     || (PUBNUB = PN);
+typeof exports !== 'undefined' && (exports.PN = PN)     || ((PUBNUB = PN) && (PUBNUB['init'] = PUBNUB));
 
 })();
 (function(){
