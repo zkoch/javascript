@@ -9,7 +9,6 @@ asyncTest("UUID response", function() {
             ok(uuid, "UUID response");
             ok(uuid.length > 10, "UUID Long Enough");
             start();
-        }
     });
 });
 
@@ -24,5 +23,4 @@ asyncTest("publish", function() {
             start();
         }
     });
-
 });
