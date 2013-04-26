@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>QUnit Test Suite</title>
+        <!-- Third-pary libraries -->
+        <link rel="stylesheet" href="qunit.css">
+        <script src="qunit.js"></script>
+
+        <script src="../pubnub.min.js"></script>
+        <!-- TestSwarm link -->
+       <script src="http://swarm.udgama.com/js/inject.js"></script>
+        <!-- Your application scripts -->
+
+        <!-- Your application test suites -->
+		<script>       
+			test( "hello test", function() {
+				ok( 1 == "1", "Passed!" );
+			})
+
+			var pubnub = PUBNUB.init({
+            	publish_key   : 'demo',
+            	subscribe_key : 'demo'
+        	});
+
+
+			asyncTest("publish", function() {
+				expect(1);
+				pubnub.publish({
+                	channel: 'channel-a',
+                	message: { test: "test" },
+                	callback: function (response) {
+                    deepEqual(response[0], 1);
+                    start();
+                }
+            });
+
+			});
+
+
+		</script>
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+    </body>
+</html>
+
