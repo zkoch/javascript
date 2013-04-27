@@ -259,26 +259,30 @@ pubnub.publish({channel: history_channel,
 
 asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
     expect(1);
-    pubnub.history({channel : history_channel,
-        callback : function(response) {
-            deepEqual(response[0].length, 2);
-            start();
-        }
-    });
+    setTimeout(function() {
+        pubnub.history({channel : history_channel,
+            callback : function(response) {
+                deepEqual(response[0].length, 2);
+                start();
+            }
+        });
+    }, 3000);
 })
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel and count is 1', function() {
     expect(1);
-    pubnub.history({channel : history_channel,
-        count : 1,
-        callback : function(response) {
-            deepEqual(response[0].length, 1);
-            start();
-        }
-    });
+        setTimeout(function() {
+        pubnub.history({channel : history_channel,
+            count : 1,
+            callback : function(response) {
+                deepEqual(response[0].length, 1);
+                start();
+            }
+        });
+    }, 3000);
 })
 
-asyncTest('test publish speed', function() {
+asyncTest('test publish speed 50 messages in 5 seconds', function() {
     expect(50);
     for (var i = 0; i < 50; i++) {
         pubnub.publish({channel : channel + '-speed-' + i,
