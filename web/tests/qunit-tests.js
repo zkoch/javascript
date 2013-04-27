@@ -216,7 +216,7 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
     })
     setTimeout(function() {
         start();
-    }, 120000);
+    }, 150000);
 });
 
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
@@ -276,4 +276,19 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
             start();
         }
     });
+})
+
+asyncTest('test publish speed', function() {
+    expect(50);
+    for (var i = 0; i < 50; i++) {
+        pubnub.publish({channel : channel + '-speed-' + i,
+            message : {'msg' : i},
+            callback : function(response) {
+                deepEqual(response[0],1);
+            }
+        });
+    }
+    setTimeout(function(){
+        start();
+    }, 5000);
 })
