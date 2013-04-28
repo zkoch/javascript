@@ -3,6 +3,24 @@ var pubnub = PUBNUB.init({
     subscribe_key : 'demo'
 });
 
+function pubnub_test(no_of_tests) {
+    var total = no_of_tests;
+    var count = 0;
+    expect(total);
+    return {
+        'equal' : function(a,b) {
+            deepEqual(a,b);
+            count++;
+            if (count === total) start();
+        },
+        'ok'    : function(a,s) {
+            ok(a,s);
+            count++;
+            if (count === total) start();
+        }
+    }
+}
+
 
 var channel = 'javascript-test-channel-' + Date.now();
 var count = 0;
@@ -19,11 +37,13 @@ asyncTest("uuid() response", function() {
     });
 });
 
+
+
 asyncTest("uuid() response should be long enough", function() {
     expect(1);
     pubnub.uuid(function(uuid){
-            ok(uuid.length > 10, "Pass");
-            start();
+        ok(uuid.length > 10, "Pass");
+        start();
     });
 });
 
@@ -85,19 +105,20 @@ asyncTest("publish() should publish json object without error", function() {
 });
 
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
-    expect(16);
+    //expect(16);
     var ch1 = channel + '-array-' + ++count ;
     var msg1 = [ 'message' , ch1 ];
+    pnt = pubnub_test(16);
     pubnub.subscribe({channel : ch1 ,
         connect : function(response) {
             pubnub.publish({channel: ch1 , message : msg1,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg1);
+            pnt.equal(response, msg1);
             pubnub.unsubscribe({channel : ch1});
         }
 
@@ -108,12 +129,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch2 , message : msg2,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg2);
+            pnt.equal(response, msg2);
             pubnub.unsubscribe({channel : ch2});
         }
 
@@ -124,12 +145,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch3 , message : msg3,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg3);
+            pnt.equal(response, msg3);
             pubnub.unsubscribe({channel : ch3});
         }
 
@@ -140,12 +161,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch4 , message : msg4,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg4);
+            pnt.equal(response, msg4);
             pubnub.unsubscribe({channel : ch4});
         }
 
@@ -156,12 +177,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch5 , message : msg5,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg5);
+            pnt.equal(response, msg5);
             pubnub.unsubscribe({channel : ch5});
         }
 
@@ -172,12 +193,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch6 , message : msg6,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg6);
+            pnt.equal(response, msg6);
             pubnub.unsubscribe({channel : ch6});
         }
 
@@ -188,12 +209,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch7 , message : msg7,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg7);
+            pnt.equal(response, msg7);
             pubnub.unsubscribe({channel : ch7});
         }
 
@@ -204,82 +225,88 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch8 , message : msg8,
                 callback : function(response) {
-                    deepEqual(response[0], 1);
+                    pnt.equal(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, msg8);
+            pnt.equal(response, msg8);
             pubnub.unsubscribe({channel : ch8});
         }
 
     })
-    setTimeout(function() {
-        start();
-    }, 150000);
 });
 
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
-    expect(3)
+    //expect(3);
+    var pnt = pubnub_test(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
             setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
-                    deepEqual(data.occupancy, 1);
+                    pnt.equal(data.occupancy, 1);
                     pubnub.unsubscribe({channel : ch});
                 }})}, 10000
             );
             pubnub.publish({channel: ch , message : message_jsona,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    pnt.equal(response[0],1);
                 }
             });
         },
         callback : function(response) {
-            deepEqual(response, message_jsona);
+            pnt.equal(response, message_jsona);
 
         }
     });
-    setTimeout(function() {
-        start();
-    }, 30000);
 });
 
-var history_channel = channel + '-history';
 
-pubnub.publish({channel: history_channel,
-    message : message_string,
-    callback : function(response){ }
-});
-pubnub.publish({channel: history_channel,
-    message : message_string,
-    callback : function(response){}
-});
 
-asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
-    expect(1);
-    setTimeout(function() {
-        pubnub.history({channel : history_channel,
-            callback : function(response) {
-                deepEqual(response[0].length, 2);
-                start();
-            }
-        });
-    }, 3000);
+asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
+    var history_channel = channel + '-history-1';
+    var pnt = pubnub_test(3);
+    pubnub.publish({channel: history_channel,
+        message : message_string,
+        callback : function(response){
+            pnt.equal(response[0],1);
+            pubnub.publish({channel: history_channel,
+                message : message_string,
+                callback : function(response){
+                    pnt.equal(response[0],1);
+                    pubnub.history({channel : history_channel,
+                        count : 1,
+                        callback : function(response) {
+                            pnt.equal(response[0].length, 1);
+                        }
+                    });
+                }
+            });
+        }
+    });
 })
 
-asyncTest('#history() should return 1 messages when 2 messages were published on channel and count is 1', function() {
-    expect(1);
-        setTimeout(function() {
-        pubnub.history({channel : history_channel,
-            count : 1,
-            callback : function(response) {
-                deepEqual(response[0].length, 1);
-                start();
-            }
-        });
-    }, 3000);
+asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
+    var history_channel = channel + '-history-2';
+    var pnt = pubnub_test(3);
+    pubnub.publish({channel: history_channel,
+        message : message_string,
+        callback : function(response){
+            pnt.equal(response[0],1);
+            pubnub.publish({channel: history_channel,
+                message : message_string,
+                callback : function(response){
+                    pnt.equal(response[0],1);
+                    pubnub.history({channel : history_channel,
+                        callback : function(response) {
+                            pnt.equal(response[0].length, 2);
+                        }
+                    });
+                }
+            });
+        }
+    });
 })
 
 asyncTest('test publish speed 50 messages in 5 seconds', function() {
@@ -295,4 +322,36 @@ asyncTest('test publish speed 50 messages in 5 seconds', function() {
     setTimeout(function(){
         start();
     }, 5000);
+})
+
+asyncTest('connection restore feature', function() {
+    var restore_channel = channel + '-restore-channel';
+    var pnt = pubnub_test(2);
+
+    pubnub.subscribe({
+        restore: true,
+        channel: restore_channel,
+        callback: function () {
+        },
+        connect: function () {
+            pubnub.unsubscribe({ channel: restore_channel });
+
+            // Send Message While Not Connected
+            pubnub.publish({
+                channel: restore_channel,
+                message: 'test',
+                callback: function (response) {
+                    pnt.equal(response[0],1);
+                    pubnub.subscribe({
+                        restore: true,
+                        channel: restore_channel,
+                        callback: function (message, stack) {
+                            pubnub.unsubscribe({ channel: restore_channel });
+                            pnt.equal(message, "test");
+                        }
+                    });
+                }
+            });
+        }
+    });
 })
