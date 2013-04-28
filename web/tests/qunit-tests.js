@@ -105,7 +105,6 @@ asyncTest("publish() should publish json object without error", function() {
 });
 
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
-    //expect(16);
     var ch1 = channel + '-array-' + ++count ;
     var msg1 = [ 'message' , ch1 ];
     pnt = pubnub_test(16);
@@ -238,7 +237,6 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 });
 
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
-    //expect(3);
     var pnt = pubnub_test(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
@@ -354,4 +352,70 @@ asyncTest('connection restore feature', function() {
             });
         }
     });
+})
+
+asyncTest('Encryption tests', function() {
+    var aes = PUBNUB.secure({
+        publish_key: "demo",
+        subscribe_key: "demo",
+        cipher_key: "enigma"
+    });
+    var pnt = pubnub_test(17);
+    var test_plain_string_1 = "Pubnub Messaging API 1";
+    var test_plain_string_2 = "Pubnub Messaging API 2";
+    var test_plain_object_1 = {"foo": {"bar": "foobar"}};
+    var test_plain_object_2 = {"this stuff": {"can get": "complicated!"}};
+    var test_plain_unicode_1 = '漢語'
+    var test_cipher_string_1 = "f42pIQcWZ9zbTbH8cyLwByD/GsviOE0vcREIEVPARR0=";
+    var test_cipher_string_2 = "f42pIQcWZ9zbTbH8cyLwB/tdvRxjFLOYcBNMVKeHS54=";
+    var test_cipher_object_1 = "GsvkCYZoYylL5a7/DKhysDjNbwn+BtBtHj2CvzC4Y4g=";
+    var test_cipher_object_2 = "zMqH/RTPlC8yrAZ2UhpEgLKUVzkMI2cikiaVg30AyUu7B6J0FLqCazRzDOmrsFsF";
+    var test_cipher_unicode_1 = "WvztVJ5SPNOcwrKsDrGlWQ==";
+
+    pnt.ok(aes.raw_encrypt(test_plain_string_1) == test_cipher_string_1, "AES String Encryption Test 1");
+    pnt.ok(aes.raw_encrypt(test_plain_string_2) == test_cipher_string_2, "AES String Encryption Test 2");
+    pnt.ok(aes.raw_encrypt(test_plain_object_1) == test_cipher_object_1, "AES Object Encryption Test 1");
+    pnt.ok(aes.raw_encrypt(test_plain_object_2) == test_cipher_object_2, "AES Object Encryption Test 2");
+    pnt.ok(aes.raw_encrypt(test_plain_unicode_1) == test_cipher_unicode_1, "AES Unicode Encryption Test 1");
+    pnt.ok(aes.raw_decrypt(test_cipher_string_1) == test_plain_string_1, "AES String Decryption Test 1");
+    pnt.ok(aes.raw_decrypt(test_cipher_string_2) == test_plain_string_2, "AES String Decryption Test 2");
+    pnt.ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_1)) == JSON.stringify(test_plain_object_1), "AES Object Decryption Test 1");
+    pnt.ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_2)) == JSON.stringify(test_plain_object_2), "AES Object Decryption Test 2");
+    pnt.ok(aes.raw_decrypt(test_cipher_unicode_1) == test_plain_unicode_1, "AES Unicode Decryption Test 1");
+
+    aes_channel = channel + "aes-channel";
+
+    aes.subscribe({
+        channel: aes_channel,
+        connect: function() { 
+            aes.publish({
+                channel: aes_channel,
+                message: { test: "test" },
+                callback: function (response) {
+                    pnt.ok(response[0], 'AES Successful Publish ' + response[0]);
+                    pnt.ok(response[1], 'AES Success With Demo ' + response[1]);
+                    setTimeout(function() {
+                        aes.history({
+                            limit: 1,
+                            reverse: false,
+                            channel: aes_channel,
+                            callback: function (data) {
+                                pnt.ok(data, 'AES History Response');
+                                pnt.ok(data[0][0].test === "test", 'AES History Content');
+                            }
+                        });
+                    }, 3000);
+                }
+            });
+        },
+        presence: function (message, envelope, aes_channel) {
+
+        },
+        callback: function (message, envelope, aes_channel) {
+            pnt.ok(message, 'AES Subscribe Message');
+            pnt.ok(message.test === "test", 'AES Subscribe Message Data');
+            pnt.ok(envelope[1], 'AES TimeToken Returned: ' + envelope[1]);
+        }
+    });
+
 })
