@@ -22,7 +22,7 @@ function pubnub_test(no_of_tests) {
 }
 
 
-var channel = 'javascript-test-channel-' + Date.now();
+var channel = 'javascript-test-channel-' + Math.random();
 var count = 0;
 
 var message_string = 'Hi from Javascript';
