@@ -306,7 +306,7 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
         }
     });
 })
-
+/*
 asyncTest('test publish speed 50 messages in 5 seconds', function() {
     expect(50);
     for (var i = 0; i < 50; i++) {
@@ -353,7 +353,7 @@ asyncTest('connection restore feature', function() {
         }
     });
 })
-
+*/
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
