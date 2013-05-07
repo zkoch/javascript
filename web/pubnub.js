@@ -1,4 +1,4 @@
-// Version: 3.4.5
+// Version: 3.4.4
 /* =-====================================================================-= */
 /* =-====================================================================-= */
 /* =-=========================     JSON     =============================-= */
@@ -349,7 +349,7 @@ function PN_API(setup) {
     ,   PUB_QUEUE     = []
     ,   SUB_CALLBACK  = 0
     ,   SUB_CHANNEL   = 0
-    ,   SUB_RECEIVER  = []
+    ,   SUB_RECEIVER  = 0
     ,   SUB_RESTORE   = 0
     ,   SUB_BUFF_WAIT = 0
     ,   TIMETOKEN     = 0
@@ -656,7 +656,7 @@ function PN_API(setup) {
             function _test_connection(success) {
                 if (success) {
                     // Begin Next Socket Connection
-                    timeout( CONNECT, SECOND );
+                    timeout( _connect, SECOND );
                 }
                 else {
                     // New Origin on Failed Connection
@@ -694,7 +694,7 @@ function PN_API(setup) {
                 if (!channels) return;
 
                 // Connect to PubNub Subscribe Servers
-                SUB_RECEIVER.push( xdr({
+                SUB_RECEIVER = xdr({
                     timeout  : sub_timeout,
                     callback : jsonp,
                     fail     : function() { SELF['time'](_test_connection) },
@@ -705,7 +705,7 @@ function PN_API(setup) {
                         jsonp, TIMETOKEN
                     ],
                     success : function(messages) {
-                        if (!messages) return timeout( CONNECT, windowing );
+                        if (!messages) return timeout( _connect, windowing );
 
                         // Connect
                         each_channel(function(channel){
@@ -750,21 +750,19 @@ function PN_API(setup) {
                             next[0]( msg, messages, next[1] );
                         } );
 
-                        timeout( CONNECT, windowing );
+                        timeout( _connect, windowing );
                     }
-                }));
-            }
-            function CLOSE_PREVIOUS_SUB() {
-                while (SUB_RECEIVER.length) {
-                    (SUB_RECEIVER.shift())();
-                }
+                });
             }
 
             CONNECT = function() {
-                CLOSE_PREVIOUS_SUB();
-                _connect();
-            };
+                // Close Previous Subscribe Connection
+                _reset_offline();
 
+                // Begin Recursive Subscribe
+                clearTimeout(SUB_BUFF_WAIT);
+                SUB_BUFF_WAIT = timeout( _connect, 100 );
+            };
 
             // Reduce Status Flicker
             if (!READY) return READY_BUFFER.push(CONNECT);
@@ -831,9 +829,7 @@ function PN_API(setup) {
     }
 
     function _reset_offline() {
-        while (SUB_RECEIVER.length) {
-            (SUB_RECEIVER.shift())();
-        }
+        SUB_RECEIVER && SUB_RECEIVER(1);
     }
 
     if (!UUID) UUID = SELF['uuid']();
@@ -841,8 +837,6 @@ function PN_API(setup) {
 
     timeout( _poll_online,  SECOND    );
     timeout( _poll_online2, KEEPALIVE );
-
-    SELF['time'](function() {});
 
     return SELF;
 }
@@ -861,7 +855,7 @@ window['PUBNUB'] || (function() {
 var SWF               = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
 ,   ASYNC           = 'async'
 ,   UA              = navigator.userAgent
-,    PNSDK              = 'PubNub-JS-' + 'Web' + '/' + '3.4.5'
+,    PNSDK              = 'PubNub-JS-' + 'Web' + '/' + '3.4.4'
 ,   XORIGN          = UA.indexOf('MSIE 6') == -1;
 
 /**
