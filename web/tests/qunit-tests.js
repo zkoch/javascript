@@ -105,6 +105,7 @@ asyncTest("publish() should publish json object without error", function() {
 });
 
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
+    setTimeout(start, 60000);
     var ch1 = channel + '-array-' + ++count ;
     var msg1 = [ 'message' , ch1 ];
     pnt = pubnub_test(16);
@@ -237,6 +238,7 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 });
 
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
+    setTimeout(start, 60000);
     var pnt = pubnub_test(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
@@ -263,6 +265,7 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
 
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
+    setTimeout(start, 60000);
     var history_channel = channel + '-history-1';
     var pnt = pubnub_test(3);
     pubnub.publish({channel: history_channel,
@@ -286,6 +289,7 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
 })
 
 asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
+    setTimeout(start, 60000);
     var history_channel = channel + '-history-2';
     var pnt = pubnub_test(3);
     pubnub.publish({channel: history_channel,
