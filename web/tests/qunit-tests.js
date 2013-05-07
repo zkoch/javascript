@@ -276,12 +276,14 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
                 message : message_string,
                 callback : function(response){
                     pnt.equal(response[0],1);
-                    pubnub.history({channel : history_channel,
-                        count : 1,
-                        callback : function(response) {
-                            pnt.equal(response[0].length, 1);
-                        }
-                    });
+                    setTimeout(function() {
+                        pubnub.history({channel : history_channel,
+                            count : 1,
+                            callback : function(response) {
+                                pnt.equal(response[0].length, 1);
+                            }
+                        });
+                    }, 5000);
                 }
             });
         }
@@ -300,11 +302,13 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
                 message : message_string,
                 callback : function(response){
                     pnt.equal(response[0],1);
-                    pubnub.history({channel : history_channel,
-                        callback : function(response) {
-                            pnt.equal(response[0].length, 2);
-                        }
-                    });
+                    setTimeout(function() {
+                        pubnub.history({channel : history_channel,
+                            callback : function(response) {
+                                pnt.equal(response[0].length, 2);
+                            }
+                        });
+                    }, 5000);
                 }
             });
         }
