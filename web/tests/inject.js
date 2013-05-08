@@ -220,9 +220,11 @@
         // http://docs.jquery.com/QUnit
         'QUnit': {
             detect: function () {
+                console.log(QUnit);
                 return typeof QUnit !== 'undefined';
             },
             install: function () {
+                console.log('Qunit install');
                 QUnit.done(function ( results ) {
                     console.log(results);
                     submit({
