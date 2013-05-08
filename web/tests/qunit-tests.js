@@ -29,6 +29,11 @@ var message_string = 'Hi from Javascript';
 var message_jsono = {'message': 'Hi Hi from Javascript'};
 var message_jsona = ['message' , 'Hi Hi from javascript'];
 
+QUnit.done(function() {
+	console.log('tests done');
+
+}); 
+
 asyncTest("uuid() response", function() {
     expect(1);
     pubnub.uuid(function(uuid){
