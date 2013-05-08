@@ -104,6 +104,7 @@ asyncTest("publish() should publish json object without error", function() {
     });
 });
 
+/*
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
     setTimeout(start, 60000);
     var ch1 = channel + '-array-' + ++count ;
@@ -314,7 +315,6 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
         }
     });
 })
-/*
 asyncTest('test publish speed 50 messages in 5 seconds', function() {
     expect(50);
     for (var i = 0; i < 50; i++) {
