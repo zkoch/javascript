@@ -89,7 +89,7 @@ asyncTest("publish() should publish json object without error", function() {
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
     var ch1 = channel + '-array-' + ++count ;
     var msg1 = [ 'message' , ch1 ];
-    expect(16);
+    expect(8);
     pubnub.subscribe({channel : ch1 ,
         connect : function(response) {
             pubnub.publish({channel: ch1 , message : msg1,
@@ -140,72 +140,8 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
     var msg4 = [ 'message' , ch4 ];
     pubnub.subscribe({channel : ch4 ,
         connect : function(response) {
-            pubnub.publish({channel: ch4 , message : msg4,
-                callback : function(response) {
-                    deepEqual(response[0], 1);
-                }
-            });
-        },
-        callback : function(response) {
-            deepEqual(response, msg4);
-            pubnub.unsubscribe({channel : ch4});
-        }
-
-    })
-    var ch5 = channel + '-array-' + ++count ;
-    var msg5 = [ 'message' , ch5 ];
-    pubnub.subscribe({channel : ch5 ,
-        connect : function(response) {
-            pubnub.publish({channel: ch5 , message : msg5,
-                callback : function(response) {
-                    deepEqual(response[0], 1);
-                }
-            });
-        },
-        callback : function(response) {
-            deepEqual(response, msg5);
-            pubnub.unsubscribe({channel : ch5});
-        }
-
-    })
-    var ch6 = channel + '-array-' + ++count ;
-    var msg6 = [ 'message' , ch6 ];
-    pubnub.subscribe({channel : ch6 ,
-        connect : function(response) {
-            pubnub.publish({channel: ch6 , message : msg6,
-                callback : function(response) {
-                    deepEqual(response[0], 1);
-                }
-            });
-        },
-        callback : function(response) {
-            deepEqual(response, msg6);
-            pubnub.unsubscribe({channel : ch6});
-        }
-
-    })
-    var ch7 = channel + '-array-' + ++count ;
-    var msg7 = [ 'message' , ch7 ];
-    pubnub.subscribe({channel : ch7 ,
-        connect : function(response) {
-            pubnub.publish({channel: ch7 , message : msg7,
-                callback : function(response) {
-                    deepEqual(response[0], 1);
-                }
-            });
-        },
-        callback : function(response) {
-            deepEqual(response, msg7);
-            pubnub.unsubscribe({channel : ch7});
-        }
-
-    })
-    var ch8 = channel + '-array-' + ++count ;
-    var msg8 = [ 'message' , ch8 ];
-    pubnub.subscribe({channel : ch8 ,
-        connect : function(response) {
             setTimeout(function() {
-                pubnub.publish({channel: ch8 , message : msg8,
+                pubnub.publish({channel: ch4 , message : msg4,
                     callback : function(response) {
                         deepEqual(response[0], 1);
                     }
@@ -213,9 +149,9 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
             }, 60000);
         },
         callback : function(response) {
-            deepEqual(response, msg8);
+            deepEqual(response, msg4);
             start();
-            pubnub.unsubscribe({channel : ch8});
+            pubnub.unsubscribe({channel : ch4});
         }
 
     })
