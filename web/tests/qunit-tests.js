@@ -330,6 +330,7 @@ asyncTest('test publish speed 50 messages in 5 seconds', function() {
     }, 5000);
 })
 
+*/
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     var pnt = pubnub_test(2);
@@ -361,7 +362,6 @@ asyncTest('connection restore feature', function() {
         }
     });
 })
-*/
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
