@@ -292,7 +292,7 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
 asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
     setTimeout(start, 60000);
     var history_channel = channel + '-history-2';
-    var pnt = pubnub_test(3);
+    expect(3);
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
