@@ -331,11 +331,9 @@ asyncTest('test publish speed 50 messages in 5 seconds', function() {
 })
 
 */
-/*
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
-    setTimeout(start,60000);
 
     pubnub.subscribe({
         restore: true,
@@ -357,6 +355,7 @@ asyncTest('connection restore feature', function() {
                         callback: function (message, stack) {
                             pubnub.unsubscribe({ channel: restore_channel });
                             deepEqual(message, "test");
+                            start();
                         }
                     });
                 }
@@ -412,9 +411,10 @@ asyncTest('Encryption tests', function() {
                             callback: function (data) {
                                 ok(data, 'AES History Response');
                                 ok(data[0][0].test === "test", 'AES History Content');
+                                start();
                             }
                         });
-                    }, 3000);
+                    }, 6000);
                 }
             });
         },
@@ -427,6 +427,4 @@ asyncTest('Encryption tests', function() {
             ok(envelope[1], 'AES TimeToken Returned: ' + envelope[1]);
         }
     });
-    setTimeout(start, 60000);
 })
-*/
