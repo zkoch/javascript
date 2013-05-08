@@ -237,7 +237,7 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 
     })
 });
-
+*/
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     setTimeout(start, 60000);
     var pnt = pubnub_test(3);
@@ -263,7 +263,7 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
     });
 });
 
-
+/*
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
     setTimeout(start, 60000);
