@@ -263,9 +263,9 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
     });
 });
 
+*/
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
-    setTimeout(start, 60000);
     var history_channel = channel + '-history-1';
     var pnt = pubnub_test(3);
     pubnub.publish({channel: history_channel,
@@ -281,6 +281,7 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
                             count : 1,
                             callback : function(response) {
                                 deepEqual(response[0].length, 1);
+                                start();
                             }
                         });
                     }, 5000);
@@ -289,7 +290,6 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
         }
     });
 })
-*/
 asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
     var history_channel = channel + '-history-2';
     expect(3);
