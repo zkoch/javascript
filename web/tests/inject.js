@@ -224,6 +224,7 @@
             },
             install: function () {
                 QUnit.done(function ( results ) {
+                    console.log(results);
                     submit({
                         fail: results.failed,
                         error: 0,
