@@ -361,7 +361,6 @@ asyncTest('connection restore feature', function() {
         }
     });
 })
-*/
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
@@ -427,3 +426,4 @@ asyncTest('Encryption tests', function() {
     });
 
 })
+*/
