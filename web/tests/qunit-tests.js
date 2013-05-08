@@ -238,8 +238,8 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 
     })
 });
+*/
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
-    setTimeout(start, 60000);
     expect(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
@@ -247,6 +247,7 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
             setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
                     deepEqual(data.occupancy, 1);
+                    start();
                     pubnub.unsubscribe({channel : ch});
                 }})}, 10000
             );
@@ -263,11 +264,10 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
     });
 });
 
-*/
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
     var history_channel = channel + '-history-1';
-    var pnt = pubnub_test(3);
+    expect(3);
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
