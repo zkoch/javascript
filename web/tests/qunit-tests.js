@@ -237,7 +237,6 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 
     })
 });
-*/
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     setTimeout(start, 60000);
     expect(3);
@@ -263,7 +262,6 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
     });
 });
 
-/*
 
 asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
     setTimeout(start, 60000);
@@ -331,6 +329,7 @@ asyncTest('test publish speed 50 messages in 5 seconds', function() {
 })
 
 */
+/*
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
@@ -428,3 +427,4 @@ asyncTest('Encryption tests', function() {
     });
     setTimeout(start, 60000);
 })
+*/
