@@ -210,7 +210,7 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
                         deepEqual(response[0], 1);
                     }
                 });
-            }, 30000);
+            }, 60000);
         },
         callback : function(response) {
             deepEqual(response, msg8);
