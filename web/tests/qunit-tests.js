@@ -2,25 +2,6 @@ var pubnub = PUBNUB.init({
     publish_key   : 'demo',
     subscribe_key : 'demo'
 });
-/*
-function pubnub_test(no_of_tests) {
-    var total = no_of_tests;
-    var count = 0;
-    expect(total);
-    return {
-        'equal' : function(a,b) {
-            deepEqual(a,b);
-            count++;
-            if (count === total) start();
-        },
-        'ok'    : function(a,s) {
-            ok(a,s);
-            count++;
-            if (count === total) start();
-        }
-    }
-}
-*/
 
 var channel = 'javascript-test-channel-' + Math.random();
 var count = 0;
@@ -105,12 +86,10 @@ asyncTest("publish() should publish json object without error", function() {
     });
 });
 
-/*
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
-    setTimeout(start, 60000);
     var ch1 = channel + '-array-' + ++count ;
     var msg1 = [ 'message' , ch1 ];
-    pnt = pubnub_test(16);
+    expect(16);
     pubnub.subscribe({channel : ch1 ,
         connect : function(response) {
             pubnub.publish({channel: ch1 , message : msg1,
@@ -225,20 +204,23 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
     var msg8 = [ 'message' , ch8 ];
     pubnub.subscribe({channel : ch8 ,
         connect : function(response) {
-            pubnub.publish({channel: ch8 , message : msg8,
-                callback : function(response) {
-                    deepEqual(response[0], 1);
-                }
-            });
+            setTimeout(function() {
+                pubnub.publish({channel: ch8 , message : msg8,
+                    callback : function(response) {
+                        deepEqual(response[0], 1);
+                    }
+                });
+            }, 30000);
         },
         callback : function(response) {
             deepEqual(response, msg8);
+            start();
             pubnub.unsubscribe({channel : ch8});
         }
 
     })
 });
-*/
+
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     expect(3);
     var ch = channel + '-' + 'here-now' ;
@@ -314,23 +296,7 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
         }
     });
 })
-/*
-asyncTest('test publish speed 50 messages in 5 seconds', function() {
-    expect(50);
-    for (var i = 0; i < 50; i++) {
-        pubnub.publish({channel : channel + '-speed-' + i,
-            message : {'msg' : i},
-            callback : function(response) {
-                deepEqual(response[0],1);
-            }
-        });
-    }
-    setTimeout(function(){
-        start();
-    }, 5000);
-})
 
-*/
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
