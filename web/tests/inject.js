@@ -223,6 +223,7 @@
                 return typeof QUnit !== 'undefined';
             },
             install: function () {
+			    console.log('INSTALL');
                 QUnit.done(function ( results ) {
                     console.log('Test Done');
                     console.log(results);
