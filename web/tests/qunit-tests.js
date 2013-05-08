@@ -2,7 +2,7 @@ var pubnub = PUBNUB.init({
     publish_key   : 'demo',
     subscribe_key : 'demo'
 });
-
+/*
 function pubnub_test(no_of_tests) {
     var total = no_of_tests;
     var count = 0;
@@ -20,7 +20,7 @@ function pubnub_test(no_of_tests) {
         }
     }
 }
-
+*/
 
 var channel = 'javascript-test-channel-' + Math.random();
 var count = 0;
@@ -114,12 +114,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch1 , message : msg1,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg1);
+            deepEqual(response, msg1);
             pubnub.unsubscribe({channel : ch1});
         }
 
@@ -130,12 +130,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch2 , message : msg2,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg2);
+            deepEqual(response, msg2);
             pubnub.unsubscribe({channel : ch2});
         }
 
@@ -146,12 +146,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch3 , message : msg3,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg3);
+            deepEqual(response, msg3);
             pubnub.unsubscribe({channel : ch3});
         }
 
@@ -162,12 +162,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch4 , message : msg4,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg4);
+            deepEqual(response, msg4);
             pubnub.unsubscribe({channel : ch4});
         }
 
@@ -178,12 +178,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch5 , message : msg5,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg5);
+            deepEqual(response, msg5);
             pubnub.unsubscribe({channel : ch5});
         }
 
@@ -194,12 +194,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch6 , message : msg6,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg6);
+            deepEqual(response, msg6);
             pubnub.unsubscribe({channel : ch6});
         }
 
@@ -210,12 +210,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch7 , message : msg7,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg7);
+            deepEqual(response, msg7);
             pubnub.unsubscribe({channel : ch7});
         }
 
@@ -226,12 +226,12 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
         connect : function(response) {
             pubnub.publish({channel: ch8 , message : msg8,
                 callback : function(response) {
-                    pnt.equal(response[0], 1);
+                    deepEqual(response[0], 1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, msg8);
+            deepEqual(response, msg8);
             pubnub.unsubscribe({channel : ch8});
         }
 
@@ -240,24 +240,24 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
 */
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     setTimeout(start, 60000);
-    var pnt = pubnub_test(3);
+    expect(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
             setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
-                    pnt.equal(data.occupancy, 1);
+                    deepEqual(data.occupancy, 1);
                     pubnub.unsubscribe({channel : ch});
                 }})}, 10000
             );
             pubnub.publish({channel: ch , message : message_jsona,
                 callback : function(response) {
-                    pnt.equal(response[0],1);
+                    deepEqual(response[0],1);
                 }
             });
         },
         callback : function(response) {
-            pnt.equal(response, message_jsona);
+            deepEqual(response, message_jsona);
 
         }
     });
@@ -272,16 +272,16 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
-            pnt.equal(response[0],1);
+            deepEqual(response[0],1);
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
-                    pnt.equal(response[0],1);
+                    deepEqual(response[0],1);
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             count : 1,
                             callback : function(response) {
-                                pnt.equal(response[0].length, 1);
+                                deepEqual(response[0].length, 1);
                             }
                         });
                     }, 5000);
@@ -298,15 +298,15 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
-            pnt.equal(response[0],1);
+            deepEqual(response[0],1);
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
-                    pnt.equal(response[0],1);
+                    deepEqual(response[0],1);
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             callback : function(response) {
-                                pnt.equal(response[0].length, 2);
+                                deepEqual(response[0].length, 2);
                             }
                         });
                     }, 5000);
@@ -333,7 +333,8 @@ asyncTest('test publish speed 50 messages in 5 seconds', function() {
 */
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
-    var pnt = pubnub_test(2);
+    expect(2);
+    setTimeout(start,60000);
 
     pubnub.subscribe({
         restore: true,
@@ -348,13 +349,13 @@ asyncTest('connection restore feature', function() {
                 channel: restore_channel,
                 message: 'test',
                 callback: function (response) {
-                    pnt.equal(response[0],1);
+                    deepEqual(response[0],1);
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
                         callback: function (message, stack) {
                             pubnub.unsubscribe({ channel: restore_channel });
-                            pnt.equal(message, "test");
+                            deepEqual(message, "test");
                         }
                     });
                 }
@@ -368,7 +369,7 @@ asyncTest('Encryption tests', function() {
         subscribe_key: "demo",
         cipher_key: "enigma"
     });
-    var pnt = pubnub_test(17);
+    expect(17);
     var test_plain_string_1 = "Pubnub Messaging API 1";
     var test_plain_string_2 = "Pubnub Messaging API 2";
     var test_plain_object_1 = {"foo": {"bar": "foobar"}};
@@ -380,16 +381,16 @@ asyncTest('Encryption tests', function() {
     var test_cipher_object_2 = "zMqH/RTPlC8yrAZ2UhpEgLKUVzkMI2cikiaVg30AyUu7B6J0FLqCazRzDOmrsFsF";
     var test_cipher_unicode_1 = "WvztVJ5SPNOcwrKsDrGlWQ==";
 
-    pnt.ok(aes.raw_encrypt(test_plain_string_1) == test_cipher_string_1, "AES String Encryption Test 1");
-    pnt.ok(aes.raw_encrypt(test_plain_string_2) == test_cipher_string_2, "AES String Encryption Test 2");
-    pnt.ok(aes.raw_encrypt(test_plain_object_1) == test_cipher_object_1, "AES Object Encryption Test 1");
-    pnt.ok(aes.raw_encrypt(test_plain_object_2) == test_cipher_object_2, "AES Object Encryption Test 2");
-    pnt.ok(aes.raw_encrypt(test_plain_unicode_1) == test_cipher_unicode_1, "AES Unicode Encryption Test 1");
-    pnt.ok(aes.raw_decrypt(test_cipher_string_1) == test_plain_string_1, "AES String Decryption Test 1");
-    pnt.ok(aes.raw_decrypt(test_cipher_string_2) == test_plain_string_2, "AES String Decryption Test 2");
-    pnt.ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_1)) == JSON.stringify(test_plain_object_1), "AES Object Decryption Test 1");
-    pnt.ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_2)) == JSON.stringify(test_plain_object_2), "AES Object Decryption Test 2");
-    pnt.ok(aes.raw_decrypt(test_cipher_unicode_1) == test_plain_unicode_1, "AES Unicode Decryption Test 1");
+    ok(aes.raw_encrypt(test_plain_string_1) == test_cipher_string_1, "AES String Encryption Test 1");
+    ok(aes.raw_encrypt(test_plain_string_2) == test_cipher_string_2, "AES String Encryption Test 2");
+    ok(aes.raw_encrypt(test_plain_object_1) == test_cipher_object_1, "AES Object Encryption Test 1");
+    ok(aes.raw_encrypt(test_plain_object_2) == test_cipher_object_2, "AES Object Encryption Test 2");
+    ok(aes.raw_encrypt(test_plain_unicode_1) == test_cipher_unicode_1, "AES Unicode Encryption Test 1");
+    ok(aes.raw_decrypt(test_cipher_string_1) == test_plain_string_1, "AES String Decryption Test 1");
+    ok(aes.raw_decrypt(test_cipher_string_2) == test_plain_string_2, "AES String Decryption Test 2");
+    ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_1)) == JSON.stringify(test_plain_object_1), "AES Object Decryption Test 1");
+    ok(JSON.stringify(aes.raw_decrypt(test_cipher_object_2)) == JSON.stringify(test_plain_object_2), "AES Object Decryption Test 2");
+    ok(aes.raw_decrypt(test_cipher_unicode_1) == test_plain_unicode_1, "AES Unicode Decryption Test 1");
 
     aes_channel = channel + "aes-channel";
 
@@ -400,16 +401,16 @@ asyncTest('Encryption tests', function() {
                 channel: aes_channel,
                 message: { test: "test" },
                 callback: function (response) {
-                    pnt.ok(response[0], 'AES Successful Publish ' + response[0]);
-                    pnt.ok(response[1], 'AES Success With Demo ' + response[1]);
+                    ok(response[0], 'AES Successful Publish ' + response[0]);
+                    ok(response[1], 'AES Success With Demo ' + response[1]);
                     setTimeout(function() {
                         aes.history({
                             limit: 1,
                             reverse: false,
                             channel: aes_channel,
                             callback: function (data) {
-                                pnt.ok(data, 'AES History Response');
-                                pnt.ok(data[0][0].test === "test", 'AES History Content');
+                                ok(data, 'AES History Response');
+                                ok(data[0][0].test === "test", 'AES History Content');
                             }
                         });
                     }, 3000);
@@ -420,10 +421,10 @@ asyncTest('Encryption tests', function() {
 
         },
         callback: function (message, envelope, aes_channel) {
-            pnt.ok(message, 'AES Subscribe Message');
-            pnt.ok(message.test === "test", 'AES Subscribe Message Data');
-            pnt.ok(envelope[1], 'AES TimeToken Returned: ' + envelope[1]);
+            ok(message, 'AES Subscribe Message');
+            ok(message.test === "test", 'AES Subscribe Message Data');
+            ok(envelope[1], 'AES TimeToken Returned: ' + envelope[1]);
         }
     });
-
+    setTimeout(start, 60000);
 })
