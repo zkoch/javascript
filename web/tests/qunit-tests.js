@@ -288,7 +288,7 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
         }
     });
 })
-
+*/
 asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
     setTimeout(start, 60000);
     var history_channel = channel + '-history-2';
@@ -313,6 +313,7 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
         }
     });
 })
+/*
 asyncTest('test publish speed 50 messages in 5 seconds', function() {
     expect(50);
     for (var i = 0; i < 50; i++) {
