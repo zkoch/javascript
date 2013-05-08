@@ -104,6 +104,7 @@ asyncTest("publish() should publish json object without error", function() {
     });
 });
 
+/*
 asyncTest("multiple messages on different channels with same Pubnub object", function() {
     setTimeout(start, 60000);
     var ch1 = channel + '-array-' + ++count ;
@@ -237,7 +238,6 @@ asyncTest("multiple messages on different channels with same Pubnub object", fun
     })
 });
 
-/*
 asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     setTimeout(start, 60000);
     var pnt = pubnub_test(3);
