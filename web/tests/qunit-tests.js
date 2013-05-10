@@ -34,7 +34,7 @@ asyncTest("publish() should publish strings without error", function() {
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_string,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    deepEqual(response[0],2);
                 }
             });
         },
