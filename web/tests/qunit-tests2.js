@@ -91,9 +91,9 @@ test("publish() should publish json object without error", function() {
     });
 });
 
-/*
-asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
+test("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     expect(3);
+    stop(3);
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
@@ -107,28 +107,33 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
             pubnub.publish({channel: ch , message : message_jsona,
                 callback : function(response) {
                     deepEqual(response[0],1);
+                    start();
                 }
             });
         },
         callback : function(response) {
             deepEqual(response, message_jsona);
+            start();
 
         }
     });
 });
 
 
-asyncTest('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
+test('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
     var history_channel = channel + '-history-1';
     expect(3);
+    stop(3);
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
             deepEqual(response[0],1);
+            start();
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
                     deepEqual(response[0],1);
+                    start();
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             count : 1,
@@ -143,17 +148,20 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
         }
     });
 })
-asyncTest('#history() should return 2 messages when 2 messages were published on channel', function() {
+test('#history() should return 2 messages when 2 messages were published on channel', function() {
     var history_channel = channel + '-history-2';
     expect(3);
+    stop(3);
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
             deepEqual(response[0],1);
+            start();
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
                     deepEqual(response[0],1);
+                    start();
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             callback : function(response) {
@@ -168,9 +176,10 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
     });
 })
 
-asyncTest('connection restore feature', function() {
+test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
+    stop(2);
 
     pubnub.subscribe({
         restore: true,
@@ -186,6 +195,7 @@ asyncTest('connection restore feature', function() {
                 message: 'test',
                 callback: function (response) {
                     deepEqual(response[0],1);
+                    start();
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
@@ -200,6 +210,7 @@ asyncTest('connection restore feature', function() {
         }
     });
 })
+/*
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
