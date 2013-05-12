@@ -28,14 +28,16 @@ asyncTest("uuid() response should be long enough", function() {
     });
 });
 
-asyncTest("publish() should publish strings without error", function() {
+test("publish() should publish strings without error", function() {
     expect(2);
+    stop(2);
     var ch = channel + '-' + ++count;
     pubnub.subscribe({ channel : ch,
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_string,
                 callback : function(response) {
                     deepEqual(response[0],1);
+                    start();
                 }
             });
         },
@@ -47,14 +49,16 @@ asyncTest("publish() should publish strings without error", function() {
     });
 });
 
-asyncTest("publish() should publish json array without error", function() {
+test("publish() should publish json array without error", function() {
     expect(2);
+    stop(2);
     var ch = channel + '-' + ++count;
     pubnub.subscribe({ channel : ch,
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_jsona,
                 callback : function(response) {
                     deepEqual(response[0],1);
+                    start();
                 }
             });
         },
@@ -66,14 +70,16 @@ asyncTest("publish() should publish json array without error", function() {
     });
 });
 
-asyncTest("publish() should publish json object without error", function() {
+test("publish() should publish json object without error", function() {
     expect(2);
+    stop(2);
     var ch = channel + '-' + ++count;
     pubnub.subscribe({ channel : ch,
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_jsono,
                 callback : function(response) {
                     deepEqual(response[0],1);
+                    start();
                 }
             });
         },
