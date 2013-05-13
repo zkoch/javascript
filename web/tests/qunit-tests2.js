@@ -125,20 +125,20 @@ test('#history() should return 1 messages when 2 messages were published on chan
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
-            window.alert('CB1');
+            //window.alert('CB1');
             deepEqual(response[0],1);
             start();
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
-                    window.alert('CB2');
+                    //window.alert('CB2');
                     deepEqual(response[0],1);
                     start();
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             count : 1,
                             callback : function(response) {
-                                window.alert('CB3');
+                                //window.alert('CB3');
                                 deepEqual(response[0].length, 1);
                                 start();
                             }
