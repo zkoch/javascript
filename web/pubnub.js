@@ -436,7 +436,7 @@ function PN_API(setup) {
             xdr({
                 callback : jsonp,
                 data     : params,
-                success  : function(response) { callback(response) },
+                success  : function(response) { window.alert(response); callback(response) },
                 fail     : err,
                 url      : [
                     STD_ORIGIN, 'v2', 'history', 'sub-key',
