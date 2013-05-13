@@ -33,12 +33,19 @@ test('connection restore feature', function() {
                     pubnub.subscribe({
                         //restore: true,
                         channel: restore_channel,
-                        callback: function (message, stack) {
-                            //deepEqual(message, "test");
+                        connect: function() {
+                          
                             ok(1,"test");
                             //deepEqual(message, "test");
                             start();
                             pubnub.unsubscribe({ channel: restore_channel });
+                        },
+                        callback: function (message, stack) {
+                            //deepEqual(message, "test");
+                            //ok(1,"test");
+                            //deepEqual(message, "test");
+                            //start();
+                            //pubnub.unsubscribe({ channel: restore_channel });
                         }
                     });
                 }
