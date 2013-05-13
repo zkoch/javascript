@@ -96,12 +96,14 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
     var ch = channel + '-' + 'here-now' ;
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
+            setTimeout(function() {
             pubnub.publish({channel: ch , message : message_jsona,
                 callback : function(response) {
                     deepEqual(response[0],1);
                     start();
                 }
             });
+            },1000);
         },
         callback : function(response) {
             deepEqual(response, message_jsona);
@@ -109,7 +111,7 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
             pubnub.here_now( {channel : ch, callback : function(data) {
                 deepEqual(data.occupancy, 1);
                 start();
-                //pubnub.unsubscribe({channel : ch});
+                pubnub.unsubscribe({channel : ch});
             }});
         }
     });
