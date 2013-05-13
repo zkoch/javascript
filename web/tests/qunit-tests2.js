@@ -94,6 +94,7 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
     expect(3);
     stop(3);
     var ch = channel + '-' + 'here-now' ;
+    window.alert('HERE NOW TEST');
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
             window.alert('CONNECT');
