@@ -16,7 +16,7 @@ test('connection restore feature', function() {
     expect(2);
     stop(2);
     pubnub.subscribe({
-        restore: true,
+        //restore: true,
         channel: restore_channel,
         callback: function () {
         },
