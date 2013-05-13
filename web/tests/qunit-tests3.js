@@ -361,7 +361,7 @@ test("publish() should publish json object without error", function() {
         }
     });
 });
-
+/*
 test("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
     expect(3);
     stop(3);
@@ -388,3 +388,4 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
         }
     });
 });
+*/
