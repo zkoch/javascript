@@ -11,12 +11,10 @@ var message_string = 'Hi from Javascript';
 var message_jsono = {'message': 'Hi Hi from Javascript'};
 var message_jsona = ['message' , 'Hi Hi from javascript'];
 
-alert('START');
 test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
-    expect(1);
-    stop(1);
-    window.alert('TEST');
+    expect(2);
+    stop(2);
     pubnub.subscribe({
         restore: true,
         channel: restore_channel,
@@ -24,24 +22,21 @@ test('connection restore feature', function() {
         },
         connect: function () {
             pubnub.unsubscribe({ channel: restore_channel });
-            window.alert('CONNECT');
 
             // Send Message While Not Connected
             pubnub.publish({
                 channel: restore_channel,
                 message: 'test',
                 callback: function (response) {
-                    window.alert('PUBLISH CALLBACK');
                     deepEqual(response[0],1);
                     start();
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
                         callback: function (message, stack) {
-                            window.alert('SUBSCRIBE CALLBACK');
+                            deepEqual(message, "test");
+                            start();
                             pubnub.unsubscribe({ channel: restore_channel });
-                            //deepEqual(message, "test");
-                            //start();
                         }
                     });
                 }
