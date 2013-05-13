@@ -11,11 +11,12 @@ var message_string = 'Hi from Javascript';
 var message_jsono = {'message': 'Hi Hi from Javascript'};
 var message_jsona = ['message' , 'Hi Hi from javascript'];
 
+window.alert('START');
 test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
     stop(2);
-
+    window.alert('TEST');
     pubnub.subscribe({
         restore: true,
         channel: restore_channel,
