@@ -177,6 +177,7 @@
     // returning false will let it run.
     window.onerror = function ( error, filePath, linerNr ) {
         var ret = false, report;
+        window.alert('Error ' + error);
         if ( onErrorFnPrev ) {
             ret = onErrorFnPrev( error, filePath, linerNr );
         }
