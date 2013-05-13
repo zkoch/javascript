@@ -435,7 +435,7 @@ function PN_API(setup) {
             xdr({
                 callback : jsonp,
                 data     : params,
-                success  : function(response) { window.alert(response); callback(response) },
+                success  : function(response) { callback(response) },
                 fail     : err,
                 url      : [
                     STD_ORIGIN, 'v2', 'history', 'sub-key',
@@ -1072,7 +1072,7 @@ function xdr( setup ) {
     ,   done = function( failed, response ) {
             if (finished) return;
                 finished = 1;
-            failed || window.alert(script.src + '  :   ' + response);
+            //failed || window.alert(script.src + '  :   ' + response);
             failed || success(response);
             script.onerror = null;
             clearTimeout(timer);
@@ -1120,7 +1120,7 @@ function ajax( setup ) {
 
             try       { response = JSON['parse'](xhr.responseText); }
             catch (r) { return done(1); }
-            window.alert(url + '  :  ' + response); 
+            //window.alert(url + '  :  ' + response); 
             success(response);
         }
     ,   complete = 0
