@@ -97,14 +97,10 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
                 pubnub.here_now( {channel : ch, callback : function(data) {
-                    window.alert('Here Now');
-                    window.console.log(data);
                     deepEqual(data.occupancy, 1);
                     start();
                     pubnub.publish({channel: ch , message : message_jsona,
                         callback : function(response) {
-                            window.alert('PUBLISH');
-                            window.console.log(response);
                             deepEqual(response[0],1);
                             start();
                         }
