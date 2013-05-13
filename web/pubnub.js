@@ -203,7 +203,6 @@ function build_url(url_components, url_params) {
         }
         url += params.join(PARAMSBIT);
     }
-    window.alert(url);
     return url;
 }
 
@@ -431,7 +430,8 @@ function PN_API(setup) {
             if (jsonp) params['callback'] = jsonp;
             if (start) params['start']    = start;
             if (end)   params['end']      = end;
-
+            
+            window.alert(url);
             // Send Message
             xdr({
                 callback : jsonp,
