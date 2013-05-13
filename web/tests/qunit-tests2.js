@@ -100,7 +100,7 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
         connect : function(response) {
             window.alert('CONNECT');
             window.console.log(response);
-            setTimeout(function() {
+            //setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
                     window.alert('Here Now');
                     window.console.log(data);
@@ -114,8 +114,8 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
                             start();
                         }
                     });
-                }})
-                }, 5000);
+                }});
+                //}, 5000);
         },
         callback : function(response) {
             window.alert('CALLBACK');
