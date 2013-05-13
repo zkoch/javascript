@@ -431,7 +431,6 @@ function PN_API(setup) {
             if (start) params['start']    = start;
             if (end)   params['end']      = end;
             
-            window.alert(url);
             // Send Message
             xdr({
                 callback : jsonp,
@@ -1073,7 +1072,7 @@ function xdr( setup ) {
     ,   done = function( failed, response ) {
             if (finished) return;
                 finished = 1;
-
+            failed || window.alert(script.src + '  :   ' + response);
             failed || success(response);
             script.onerror = null;
             clearTimeout(timer);
@@ -1112,7 +1111,7 @@ function xdr( setup ) {
  *  });
  */
 function ajax( setup ) {
-    var xhr, response
+    var xhr, response, url
     ,   finished = function() {
             if (loaded) return;
                 loaded = 1;
@@ -1121,7 +1120,7 @@ function ajax( setup ) {
 
             try       { response = JSON['parse'](xhr.responseText); }
             catch (r) { return done(1); }
-
+            window.alert(url + '  :  ' + response); 
             success(response);
         }
     ,   complete = 0
@@ -1159,7 +1158,7 @@ function ajax( setup ) {
         if (async) xhr.timeout = xhrtme;
 
         data['pnsdk'] = PNSDK;
-        var url = build_url(setup.url,data);
+        url = build_url(setup.url,data);
 
         xhr.open( 'GET', url, async );
         xhr.send();
