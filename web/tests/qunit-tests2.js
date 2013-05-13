@@ -220,7 +220,7 @@ asyncTest('Encryption tests', function() {
         subscribe_key: "demo",
         cipher_key: "enigma"
     });
-    expect(10);
+    expect(9);
     var test_plain_string_1 = "Pubnub Messaging API 1";
     var test_plain_string_2 = "Pubnub Messaging API 2";
     var test_plain_object_1 = {"foo": {"bar": "foobar"}};
