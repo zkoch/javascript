@@ -282,3 +282,108 @@ asyncTest('Encryption tests', function() {
     */
 })
 
+asyncTest("uuid() response", function() {
+    expect(1);
+    pubnub.uuid(function(uuid){
+            ok(uuid, "Pass");
+            start();
+    });
+});
+
+asyncTest("uuid() response should be long enough", function() {
+    expect(1);
+    pubnub.uuid(function(uuid){
+        ok(uuid.length > 10, "Pass");
+        start();
+    });
+});
+
+test("publish() should publish strings without error", function() {
+    expect(2);
+    stop(2);
+    var ch = channel + '-' + ++count;
+    pubnub.subscribe({ channel : ch,
+        connect : function(response)  {
+            pubnub.publish({channel: ch, message: message_string,
+                callback : function(response) {
+                    deepEqual(response[0],1);
+                    start();
+                }
+            });
+        },
+        callback : function(response) {
+            deepEqual(response, message_string);
+            pubnub.unsubscribe({channel : ch});
+            start();
+        }
+    });
+});
+
+test("publish() should publish json array without error", function() {
+    expect(2);
+    stop(2);
+    var ch = channel + '-' + ++count;
+    pubnub.subscribe({ channel : ch,
+        connect : function(response)  {
+            pubnub.publish({channel: ch, message: message_jsona,
+                callback : function(response) {
+                    deepEqual(response[0],1);
+                    start();
+                }
+            });
+        },
+        callback : function(response) {
+            deepEqual(response, message_jsona);
+            pubnub.unsubscribe({channel : ch});
+            start();
+        }
+    });
+});
+
+test("publish() should publish json object without error", function() {
+    expect(2);
+    stop(2);
+    var ch = channel + '-' + ++count;
+    pubnub.subscribe({ channel : ch,
+        connect : function(response)  {
+            pubnub.publish({channel: ch, message: message_jsono,
+                callback : function(response) {
+                    deepEqual(response[0],1);
+                    start();
+                }
+            });
+        },
+        callback : function(response) {
+            deepEqual(response, message_jsono);
+            pubnub.unsubscribe({channel : ch});
+            start();
+        }
+    });
+});
+
+test("#here_now() should show occupancy 1 when 1 user subscribed to channel", function() {
+    expect(3);
+    stop(3);
+    var ch = channel + '-' + 'here-now' ;
+    pubnub.subscribe({channel : ch ,
+        connect : function(response) {
+            setTimeout(function() {
+            pubnub.publish({channel: ch , message : message_jsona,
+                callback : function(response) {
+                    deepEqual(response[0],1);
+                    start();
+                }
+            });
+            },1000);
+        },
+        callback : function(response) {
+            deepEqual(response, message_jsona);
+            start();
+            pubnub.here_now( {channel : ch, callback : function(data) {
+                deepEqual(data.occupancy, 1);
+                start();
+                pubnub.unsubscribe({channel : ch});
+            }});
+        }
+    });
+});
