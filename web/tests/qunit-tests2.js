@@ -22,6 +22,7 @@ asyncTest("uuid() response", function() {
 asyncTest("uuid() response should be long enough", function() {
     expect(1);
     pubnub.uuid(function(uuid){
+        window.alert('DEBUG');
         ok(uuid.length > 10, "Pass");
         start();
     });
