@@ -375,7 +375,7 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
                     start();
                 }
             });
-            },1000);
+            },3000);
         },
         callback : function(response) {
             deepEqual(response, message_jsona);
