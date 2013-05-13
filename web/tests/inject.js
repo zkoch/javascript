@@ -224,7 +224,9 @@
                 return typeof QUnit !== 'undefined';
             },
             install: function () {
+                window.alert('INSTALLED');
                 QUnit.done(function ( results ) {
+                    window.alert(results);
                     submit({
                         fail: results.failed,
                         error: 0,
