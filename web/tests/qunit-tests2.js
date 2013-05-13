@@ -54,6 +54,7 @@ test("publish() should publish json array without error", function() {
     var ch = channel + '-' + ++count;
     pubnub.subscribe({ channel : ch,
         connect : function(response)  {
+            console.log('CONNECT');
             pubnub.publish({channel: ch, message: message_jsona,
                 callback : function(response) {
                     deepEqual(response[0],1);
