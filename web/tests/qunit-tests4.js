@@ -14,8 +14,8 @@ var message_jsona = ['message' , 'Hi Hi from javascript'];
 alert('START');
 test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
-    expect(2);
-    stop(2);
+    expect(1);
+    stop(1);
     window.alert('TEST');
     pubnub.subscribe({
         restore: true,
@@ -34,6 +34,7 @@ test('connection restore feature', function() {
                     window.alert('PUBLISH CALLBACK');
                     deepEqual(response[0],1);
                     start();
+                    /*
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
@@ -44,6 +45,7 @@ test('connection restore feature', function() {
                             start();
                         }
                     });
+                    */
                 }
             });
         }
