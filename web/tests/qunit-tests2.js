@@ -262,7 +262,7 @@ asyncTest('Encryption tests', function() {
                                 start();
                             }
                         });
-                    }, 6000);
+                    }, 1000);
                 }
             });
         },
