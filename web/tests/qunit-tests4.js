@@ -34,18 +34,16 @@ test('connection restore feature', function() {
                     window.alert('PUBLISH CALLBACK');
                     deepEqual(response[0],1);
                     start();
-                    /*
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
                         callback: function (message, stack) {
                             window.alert('SUBSCRIBE CALLBACK');
                             pubnub.unsubscribe({ channel: restore_channel });
-                            deepEqual(message, "test");
-                            start();
+                            //deepEqual(message, "test");
+                            //start();
                         }
                     });
-                    */
                 }
             });
         }
