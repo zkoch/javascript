@@ -203,8 +203,6 @@ function build_url(url_components, url_params) {
         }
         url += params.join(PARAMSBIT);
     }
-    window.alert(url);
-    alert(url);
     return url;
 }
 

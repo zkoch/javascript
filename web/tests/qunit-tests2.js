@@ -22,7 +22,6 @@ asyncTest("uuid() response", function() {
 asyncTest("uuid() response should be long enough", function() {
     expect(1);
     pubnub.uuid(function(uuid){
-        window.alert('DEBUG');
         ok(uuid.length > 10, "Pass");
         start();
     });
@@ -95,12 +94,8 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
     expect(3);
     stop(3);
     var ch = channel + '-' + 'here-now' ;
-    window.alert('HERE NOW TEST');
     pubnub.subscribe({channel : ch ,
         connect : function(response) {
-            window.alert('CONNECT');
-            window.console.log(response);
-            //setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
                     window.alert('Here Now');
                     window.console.log(data);
@@ -115,11 +110,8 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
                         }
                     });
                 }});
-                //}, 5000);
         },
         callback : function(response) {
-            window.alert('CALLBACK');
-            window.console.log(response);
             deepEqual(response, message_jsona);
             start();
             pubnub.unsubscribe({channel : ch});
@@ -183,7 +175,6 @@ test('#history() should return 2 messages when 2 messages were published on chan
         }
     });
 })
-/*
 test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
@@ -218,7 +209,6 @@ test('connection restore feature', function() {
         }
     });
 })
-*/
 /*
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
