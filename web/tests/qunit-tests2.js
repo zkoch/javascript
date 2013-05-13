@@ -10,7 +10,7 @@ var count = 0;
 var message_string = 'Hi from Javascript';
 var message_jsono = {'message': 'Hi Hi from Javascript'};
 var message_jsona = ['message' , 'Hi Hi from javascript'];
-
+/*
 asyncTest("uuid() response", function() {
     expect(1);
     pubnub.uuid(function(uuid){
@@ -117,7 +117,7 @@ test("#here_now() should show occupancy 1 when 1 user subscribed to channel", fu
     });
 });
 
-
+*/
 test('#history() should return 1 messages when 2 messages were published on channel but count is 1', function() {
     var history_channel = channel + '-history-1';
     expect(3);
