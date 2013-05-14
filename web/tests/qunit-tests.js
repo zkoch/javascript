@@ -230,27 +230,29 @@ test('Encryption tests', function() {
     aes.subscribe({
         channel: aes_channel,
         connect: function() { 
-            aes.publish({
-                channel: aes_channel,
-                message: { test: "test" },
-                callback: function (response) {
-                    ok(response[0], 'AES Successful Publish ' + response[0]);
-                    ok(response[1], 'AES Success With Demo ' + response[1]);
-                    start();
-                    setTimeout(function() {
-                        aes.history({
-                            limit: 1,
-                            reverse: false,
-                            channel: aes_channel,
-                            callback: function (data) {
-                                ok(data, 'AES History Response');
-                                ok(data[0][0].test === "test", 'AES History Content');
-                                start();
-                            }
-                        });
-                    }, 6000);
-                }
-            });
+            setTimeout(function() {
+                aes.publish({
+                    channel: aes_channel,
+                    message: { test: "test" },
+                    callback: function (response) {
+                        ok(response[0], 'AES Successful Publish ' + response[0]);
+                        ok(response[1], 'AES Success With Demo ' + response[1]);
+                        start();
+                        setTimeout(function() {
+                            aes.history({
+                                limit: 1,
+                                reverse: false,
+                                channel: aes_channel,
+                                callback: function (data) {
+                                    ok(data, 'AES History Response');
+                                    ok(data[0][0].test === "test", 'AES History Content');
+                                    start();
+                                }
+                            });
+                        }, 6000);
+                    }
+                });
+            }, 5000);
         },
         presence: function (message, envelope, aes_channel) {
 
