@@ -16,7 +16,7 @@ test('connection restore feature', function() {
     expect(2);
     stop(2);
     pubnub.subscribe({
-        //restore: true,
+        restore: true,
         channel: restore_channel,
         callback: function () {
         },
@@ -24,32 +24,29 @@ test('connection restore feature', function() {
             pubnub.unsubscribe({ channel: restore_channel });
 
             // Send Message While Not Connected
+            setTimeout( function() {
             pubnub.publish({
                 channel: restore_channel,
                 message: 'test',
                 callback: function (response) {
                     deepEqual(response[0],1);
                     start();
+                    setTimeout(function() {
                     pubnub.subscribe({
-                        //restore: true,
+                        restore: true,
                         channel: restore_channel,
-                        connect: function() {
-                          
+                        callback: function (message, stack) {
+                            //deepEqual(message, "test");
                             ok(1,"test");
                             //deepEqual(message, "test");
                             start();
                             pubnub.unsubscribe({ channel: restore_channel });
-                        },
-                        callback: function (message, stack) {
-                            //deepEqual(message, "test");
-                            //ok(1,"test");
-                            //deepEqual(message, "test");
-                            //start();
-                            //pubnub.unsubscribe({ channel: restore_channel });
                         }
                     });
+                    }, 3000);
                 }
             });
+            }, 3000);
         }
     });
 })
