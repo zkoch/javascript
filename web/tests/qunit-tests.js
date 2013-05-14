@@ -200,10 +200,6 @@ asyncTest('Encryption tests', function() {
         subscribe_key: "demo",
         cipher_key: "enigma"
     });
-    var aestmp = PUBNUB.init({
-        publish_key: "demo",
-        subscribe_key: "demo"
-    });
     expect(16);
     var test_plain_string_1 = "Pubnub Messaging API 1";
     var test_plain_string_2 = "Pubnub Messaging API 2";
@@ -220,6 +216,7 @@ asyncTest('Encryption tests', function() {
     ok(aes.raw_encrypt(test_plain_string_2) == test_cipher_string_2, "AES String Encryption Test 2");
     ok(aes.raw_encrypt(test_plain_object_1) == test_cipher_object_1, "AES Object Encryption Test 1");
     ok(aes.raw_encrypt(test_plain_object_2) == test_cipher_object_2, "AES Object Encryption Test 2");
+    /* ISSUE on IE 8 */
     //ok(aes.raw_encrypt(test_plain_unicode_1) == test_cipher_unicode_1, "AES Unicode Encryption Test 1");
     ok(aes.raw_decrypt(test_cipher_string_1) == test_plain_string_1, "AES String Decryption Test 1");
     ok(aes.raw_decrypt(test_cipher_string_2) == test_plain_string_2, "AES String Decryption Test 2");
@@ -228,26 +225,22 @@ asyncTest('Encryption tests', function() {
     ok(aes.raw_decrypt(test_cipher_unicode_1) == test_plain_unicode_1, "AES Unicode Decryption Test 1");
 
     aes_channel = channel + "aes-channel";
-    window.alert('start');
-    aestmp.subscribe({
+    aes.subscribe({
         channel: aes_channel,
         connect: function() { 
-            window.alert('CONNECT');
             setTimeout(function() {
-                aestmp.publish({
+                aes.publish({
                     channel: aes_channel,
                     message: { test: "test" },
                     callback: function (response) {
-                        window.alert('PUBLISH CB');
                         ok(response[0], 'AES Successful Publish ' + response[0]);
                         ok(response[1], 'AES Success With Demo ' + response[1]);
                         setTimeout(function() {
-                            aestmp.history({
+                            aes.history({
                                 limit: 1,
                                 reverse: false,
                                 channel: aes_channel,
                                 callback: function (data) {
-                                    window.alert('SUBSCRIBE CB');
                                     ok(data, 'AES History Response');
                                     ok(data[0][0].test === "test", 'AES History Content');
                                     start();
@@ -258,6 +251,7 @@ asyncTest('Encryption tests', function() {
                 });
             }, 3000);
         },
+        /* ISSUE on IE 6 */
         /*
         presence: function (message, envelope, aes_channel) {
 
