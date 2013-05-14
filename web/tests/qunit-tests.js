@@ -258,9 +258,11 @@ asyncTest('Encryption tests', function() {
                 });
             }, 3000);
         },
+        /*
         presence: function (message, envelope, aes_channel) {
 
         },
+        */
         callback: function (message, envelope, aes_channel) {
             ok(message, 'AES Subscribe Message');
             ok(message.test === "test", 'AES Subscribe Message Data');
