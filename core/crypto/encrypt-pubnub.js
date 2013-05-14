@@ -31,6 +31,7 @@ PUBNUB['secure'] = (function(){
         cipher_key = crypto.s2a(SHA256(setup.cipher_key).slice(0,32));
         var pubnub = PUBNUB.init(setup);
         return {
+            ready       : pubnub.ready,
             raw_encrypt : encrypt,
             raw_decrypt : decrypt,
             time        : PUBNUB.time,
