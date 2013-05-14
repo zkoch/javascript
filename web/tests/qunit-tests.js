@@ -53,7 +53,7 @@ test("publish() should publish strings without error", function() {
 
 test("publish() should publish json array without error", function() {
     expect(2);
-    stop();
+    stop(2);
     var ch = channel + '-' + ++count;
     pubnub.subscribe({ channel : ch,
         connect : function(response)  {
