@@ -224,15 +224,17 @@ asyncTest('Encryption tests', function() {
     ok(aes.raw_decrypt(test_cipher_unicode_1) == test_plain_unicode_1, "AES Unicode Decryption Test 1");
 
     aes_channel = channel + "aes-channel";
-
+    window.alert('start');
     aes.subscribe({
         channel: aes_channel,
         connect: function() { 
+            window.alert('CONNECT');
             setTimeout(function() {
                 aes.publish({
                     channel: aes_channel,
                     message: { test: "test" },
                     callback: function (response) {
+                        window.alert('PUBLISH CB');
                         ok(response[0], 'AES Successful Publish ' + response[0]);
                         ok(response[1], 'AES Success With Demo ' + response[1]);
                         setTimeout(function() {
@@ -241,6 +243,7 @@ asyncTest('Encryption tests', function() {
                                 reverse: false,
                                 channel: aes_channel,
                                 callback: function (data) {
+                                    window.alert('SUBSCRIBE CB');
                                     ok(data, 'AES History Response');
                                     ok(data[0][0].test === "test", 'AES History Content');
                                     start();
