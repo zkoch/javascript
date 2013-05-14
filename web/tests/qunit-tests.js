@@ -200,6 +200,10 @@ asyncTest('Encryption tests', function() {
         subscribe_key: "demo",
         cipher_key: "enigma"
     });
+    var aestmp = PUBNUB.init({
+        publish_key: "demo",
+        subscribe_key: "demo"
+    });
     expect(16);
     var test_plain_string_1 = "Pubnub Messaging API 1";
     var test_plain_string_2 = "Pubnub Messaging API 2";
@@ -225,12 +229,12 @@ asyncTest('Encryption tests', function() {
 
     aes_channel = channel + "aes-channel";
     window.alert('start');
-    aes.subscribe({
+    aestmp.subscribe({
         channel: aes_channel,
         connect: function() { 
             window.alert('CONNECT');
             setTimeout(function() {
-                aes.publish({
+                aestmp.publish({
                     channel: aes_channel,
                     message: { test: "test" },
                     callback: function (response) {
@@ -238,7 +242,7 @@ asyncTest('Encryption tests', function() {
                         ok(response[0], 'AES Successful Publish ' + response[0]);
                         ok(response[1], 'AES Success With Demo ' + response[1]);
                         setTimeout(function() {
-                            aes.history({
+                            aestmp.history({
                                 limit: 1,
                                 reverse: false,
                                 channel: aes_channel,
