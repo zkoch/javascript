@@ -29,7 +29,7 @@ test('connection restore feature', function() {
                 channel: restore_channel,
                 message: 'test',
                 callback: function (response) {
-                    deepEqual(response[0],1);
+                    deepEqual(response[0],4);
                     start();
                     setTimeout(function() {
                     pubnub.subscribe({
@@ -37,7 +37,7 @@ test('connection restore feature', function() {
                         channel: restore_channel,
                         callback: function (message, stack) {
                             //deepEqual(message, "test");
-                            ok(1,"test");
+                            ok(0,"test");
                             //deepEqual(message, "test");
                             start();
                             pubnub.unsubscribe({ channel: restore_channel });
