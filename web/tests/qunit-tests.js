@@ -38,7 +38,7 @@ test("publish() should publish strings without error", function() {
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_string,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                     start();
                 }
             });
@@ -59,7 +59,7 @@ test("publish() should publish json array without error", function() {
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_jsona,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                     start();
                 }
             });
@@ -80,7 +80,7 @@ test("publish() should publish json object without error", function() {
         connect : function(response)  {
             pubnub.publish({channel: ch, message: message_jsono,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                     start();
                 }
             });
@@ -101,14 +101,14 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
         connect : function(response) {
             setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
-                    deepEqual(data.occupancy, 1);
+                    equal(data.occupancy, 1);
                     start();
                     pubnub.unsubscribe({channel : ch});
                 }})}, 10000
             );
             pubnub.publish({channel: ch , message : message_jsona,
                 callback : function(response) {
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                 }
             });
         },
@@ -126,16 +126,16 @@ asyncTest('#history() should return 1 messages when 2 messages were published on
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
-            deepEqual(response[0],1);
+            equal(response[0],1);
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             count : 1,
                             callback : function(response) {
-                                deepEqual(response[0].length, 1);
+                                equal(response[0].length, 1);
                                 start();
                             }
                         });
@@ -151,15 +151,15 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
     pubnub.publish({channel: history_channel,
         message : message_string,
         callback : function(response){
-            deepEqual(response[0],1);
+            equal(response[0],1);
             pubnub.publish({channel: history_channel,
                 message : message_string,
                 callback : function(response){
-                    deepEqual(response[0],1);
+                    equal(response[0],1);
                     setTimeout(function() {
                         pubnub.history({channel : history_channel,
                             callback : function(response) {
-                                deepEqual(response[0].length, 2);
+                                equal(response[0].length, 2);
                                 start();
                             }
                         });
