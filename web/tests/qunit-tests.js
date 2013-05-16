@@ -171,9 +171,10 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
 })
 */
 
-asyncTest('connection restore feature', function() {
+test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
+    stop(2);
 
     pubnub.subscribe({
         restore: true,
@@ -189,6 +190,7 @@ asyncTest('connection restore feature', function() {
                 message: 'test',
                 callback: function (response) {
                     equal(response[0],1);
+                    start();
                     pubnub.subscribe({
                         restore: true,
                         channel: restore_channel,
