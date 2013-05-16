@@ -170,6 +170,7 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
     });
 })
 */
+/*
 asyncTest('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
@@ -202,6 +203,7 @@ asyncTest('connection restore feature', function() {
         }
     });
 })
+*/
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
