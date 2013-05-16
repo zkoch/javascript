@@ -11,7 +11,7 @@ var message_string = 'Hi from Javascript';
 var message_jsono = {'message': 'Hi Hi from Javascript'};
 var message_jsona = ['message' , 'Hi Hi from javascript'];
 
-/*
+`
 test("uuid() response", function() {
     expect(1);
     stop(1);
@@ -169,8 +169,8 @@ asyncTest('#history() should return 2 messages when 2 messages were published on
         }
     });
 })
-*/
 
+/*
 test('connection restore feature', function() {
     var restore_channel = channel + '-restore-channel';
     expect(2);
@@ -205,8 +205,8 @@ test('connection restore feature', function() {
         }
     });
 })
+*/
 
-/*
 asyncTest('Encryption tests', function() {
     var aes = PUBNUB.secure({
         publish_key: "demo",
@@ -277,4 +277,4 @@ asyncTest('Encryption tests', function() {
         }
     });
 })
-*/
+
