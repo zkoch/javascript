@@ -735,7 +735,8 @@ function PN_API(setup) {
                         var next_callback = (function() {
                             var channels = (messages.length>2?messages[2]:'')
                             ,   list     = channels.split(',');
-
+                            console.log(channels);
+                            console.log(list);
                             return function() {
                                 var channel = list.shift()||'';
                                 return [
@@ -749,6 +750,7 @@ function PN_API(setup) {
 
                         each( messages[0], function(msg) {
                             var next = next_callback();
+                            console.log(next);
                             if (!CHANNELS[next[1]].subscribed) return;
                             next[0]( msg, messages, next[1] );
                         } );
