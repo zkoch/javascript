@@ -705,7 +705,7 @@ function PN_API(setup) {
     }
 
     function _reset_offline() {
-        SUB_RECEIVER && SUB_RECEIVER();
+        SUB_RECEIVER && SUB_RECEIVER(1);
         SUB_RECEIVER = null;
     }
 
