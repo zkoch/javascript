@@ -225,7 +225,6 @@ asyncTest('Encryption tests', function() {
     ok(aes.raw_encrypt(test_plain_string_2) == test_cipher_string_2, "AES String Encryption Test 2");
     ok(aes.raw_encrypt(test_plain_object_1) == test_cipher_object_1, "AES Object Encryption Test 1");
     ok(aes.raw_encrypt(test_plain_object_2) == test_cipher_object_2, "AES Object Encryption Test 2");
-    // ISSUE on IE 8 
     ok(aes.raw_encrypt(test_plain_unicode_1) == test_cipher_unicode_1, "AES Unicode Encryption Test 1");
     ok(aes.raw_decrypt(test_cipher_string_1) == test_plain_string_1, "AES String Decryption Test 1");
     ok(aes.raw_decrypt(test_cipher_string_2) == test_plain_string_2, "AES String Decryption Test 2");
@@ -260,12 +259,9 @@ asyncTest('Encryption tests', function() {
                 });
             }, 3000);
         },
-        // ISSUE on IE 6 
-        //
         presence: function (message, envelope, aes_channel) {
 
         },
-        //
         callback: function (message, envelope, aes_channel) {
             ok(message, 'AES Subscribe Message');
             ok(message.test === "test", 'AES Subscribe Message Data');
