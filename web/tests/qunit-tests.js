@@ -99,7 +99,7 @@ asyncTest("#here_now() should show occupancy 1 when 1 user subscribed to channel
         connect : function(response) {
             setTimeout(function() {
                 pubnub.here_now( {channel : ch, callback : function(data) {
-                    equal(data.occupancy, 3);
+                    equal(data.occupancy, 1);
                     start();
                     pubnub.unsubscribe({channel : ch});
                 }})}, 10000
