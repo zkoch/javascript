@@ -721,7 +721,7 @@ function PN_API(setup) {
                 SUB_RECEIVER = xdr({
                     timeout  : sub_timeout,
                     callback : jsonp,
-                    fail     : function() { 
+                    fail     : function() {
                         SUB_RECEIVER = null;
                         SELF['time'](_test_connection);
                     },
@@ -885,6 +885,7 @@ var SWF             = 'https://pubnub.a.ssl.fastly.net/pubnub.swf'
 ,   ASYNC           = 'async'
 ,   UA              = navigator.userAgent
 ,   PNSDK           = 'PubNub-JS-' + 'Web' + '/' + '3.5.0'
+,   DISABLE_JSONP   = false
 ,   XORIGN          = UA.indexOf('MSIE 6') == -1;
 
 /**
@@ -1138,6 +1139,7 @@ function ajax( setup ) {
             catch (r) { return done(1); }
 
             complete = 1;
+            DISABLE_JSONP = true;
             success(response);
         }
     ,   complete = 0
@@ -1182,7 +1184,7 @@ function ajax( setup ) {
     }
     catch(eee) {
         done(0);
-        XORIGN = 0;
+        if (!DISABLE_JSONP) XORIGN = 0;
         return xdr(setup);
     }
 
