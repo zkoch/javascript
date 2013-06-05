@@ -572,7 +572,7 @@ function PN_API(setup) {
                 SUB_RECEIVER = xdr({
                     timeout  : sub_timeout,
                     callback : jsonp,
-                    fail     : function() { 
+                    fail     : function() {
                         SUB_RECEIVER = null;
                         SELF['time'](_test_connection);
                     },
