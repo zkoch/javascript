@@ -1,4 +1,5 @@
 var pubnub = PUBNUB.init({
+    jsonp         :  true
     publish_key   : 'demo',
     subscribe_key : 'demo'
 });
