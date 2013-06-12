@@ -654,6 +654,7 @@ function PN_API(setup) {
                 // Subscribe Presence Channel
                 SELF['subscribe']({
                     'channel'  : channel + PRESENCE_SUFFIX,
+                    'restore'  : restore,
                     'callback' : presence
                 });
 
