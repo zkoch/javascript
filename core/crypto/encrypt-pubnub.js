@@ -35,9 +35,13 @@ PUBNUB['secure'] = (function(){
             raw_decrypt : decrypt,
             ready       : pubnub.ready,
             time        : PUBNUB.time,
+            uuid        : PUBNUB.uuid,
             publish     : function (args) {
                 args.message = encrypt(args.message);
                 return pubnub.publish(args);
+            },
+            here_now    : function (args) {
+                return pubnub.here_now(args);
             },
             unsubscribe : function (args) {
                 return pubnub.unsubscribe(args);
@@ -58,7 +62,7 @@ PUBNUB['secure'] = (function(){
                     encrypted_messages     = response[0];
                     var decrypted_messages = [];
 
-                    for (a = 0; a < encrypted_messages.length; a++) {
+                    for (var a = 0; a < encrypted_messages.length; a++) {
                         var new_message = decrypt( encrypted_messages[a], {
                             "parse_error":"DECRYPT_ERROR"
                         } );

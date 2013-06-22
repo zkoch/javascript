@@ -888,8 +888,9 @@ var init = function(setup) {
     PN.ready();
     return PN;
 }
-var PUBNUB = init({})
-var crypto = (function(){
+var PUBNUB = init({});
+PUBNUB.init = init;
+PUBNUB['crypto'] = (function(){
     var Nr = 14,
     /* Default to 256 Bit Encryption */
     Nk = 8,
@@ -1862,7 +1863,8 @@ var crypto = (function(){
     };
 
 })();
-var secure = (function(){
+PUBNUB['secure'] = (function(){
+    var crypto = PUBNUB['crypto'];
     crypto.size(256);
 
     var cipher_key = "";
@@ -1892,7 +1894,7 @@ var secure = (function(){
 
     return function (setup) {
         cipher_key = crypto.s2a(SHA256(setup.cipher_key).slice(0,32));
-        var pubnub = init(setup);
+        var pubnub = PUBNUB.init(setup);
         return {
             raw_encrypt : encrypt,
             raw_decrypt : decrypt,
@@ -1903,11 +1905,11 @@ var secure = (function(){
                 args.message = encrypt(args.message);
                 return pubnub.publish(args);
             },
+            here_now    : function (args) {
+                return pubnub.here_now(args);
+            },
             unsubscribe : function (args) {
                 return pubnub.unsubscribe(args);
-            },
-            here_now : function (args) {
-                return pubnub.here_now(args);
             },
             subscribe   : function (args) {
                 var callback = args.callback || args.message;
@@ -2087,6 +2089,6 @@ function SHA256(s) {
     s = Utf8Encode(s);
     return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
 }
-
 exports.init = init
-exports.secure = secure
+exports.secure = PUBNUB['secure']
+exports.unique = unique

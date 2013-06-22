@@ -148,7 +148,7 @@ var db = (function(){
 /* =-=====================================================================-= */
 /* =-=====================================================================-= */
 
-exports.init = function(setup) {
+var init = function(setup) {
     var PN = {};
     setup['xdr'] = xdr;
     setup['db'] = db;
@@ -157,5 +157,5 @@ exports.init = function(setup) {
     PN.ready();
     return PN;
 }
-PUBNUB = exports.init({});
-exports.unique = unique
+var PUBNUB = init({});
+PUBNUB.init = init;
