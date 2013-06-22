@@ -888,9 +888,7 @@ var init = function(setup) {
     PN.ready();
     return PN;
 }
-PUBNUB = init({});
-PUBNUB.init = init;
-//exports.unique = unique
+var PUBNUB = init({})
 var crypto = (function(){
     var Nr = 14,
     /* Default to 256 Bit Encryption */
@@ -1864,7 +1862,7 @@ var crypto = (function(){
     };
 
 })();
-PUBNUB['secure'] = (function(){
+var secure = (function(){
     crypto.size(256);
 
     var cipher_key = "";
@@ -1894,7 +1892,7 @@ PUBNUB['secure'] = (function(){
 
     return function (setup) {
         cipher_key = crypto.s2a(SHA256(setup.cipher_key).slice(0,32));
-        var pubnub = PUBNUB.init(setup);
+        var pubnub = init(setup);
         return {
             raw_encrypt : encrypt,
             raw_decrypt : decrypt,
@@ -2090,4 +2088,5 @@ function SHA256(s) {
     return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
 }
 
-exports.PUBNUB = PUBNUB
+exports.init = init
+exports.secure = secure
