@@ -141,6 +141,7 @@ function xdr( setup ) {
                 finished();
             });
         });
+        request.on('error', function() { done( 1, { "error" : "Network Request Error" })});
         request.end();
         request.timeout = xhrtme;
 
