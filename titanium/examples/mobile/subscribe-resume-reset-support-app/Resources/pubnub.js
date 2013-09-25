@@ -1082,7 +1082,6 @@ function xdr_http_client( setup ) {
                 loaded = 1;
 
             clearTimeout(timer);
-            Titanium.API.info(xhr.responseText);
             try       { response = JSON['parse'](xhr.responseText); }
             catch (r) { return done(1); }
 
@@ -1107,7 +1106,6 @@ function xdr_http_client( setup ) {
 
             failed && fail();
         };
-    Titanium.API.info(url);
     // Send
     try {
         xhr         = Ti.Network.createHTTPClient();
