@@ -1063,6 +1063,7 @@ function xdr( setup ) {
                 finished();
             });
         });
+        request.on('error', function(){done(1, {"error" : "Network Reset Error"})});
         request.end();
         request.timeout = xhrtme;
 
